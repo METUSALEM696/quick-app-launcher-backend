@@ -568,7 +568,6 @@
 <body>
 <h1>🎮 ESP32 Pro Control - Fixed Version</h1>
 <p id="controlTargetHint" style="font-size:0.82rem;color:#66ddcc;margin:6px 0 18px;max-width:900px;margin-left:auto;margin-right:auto;line-height:1.35;"></p>
-<div id="githubPagesWarning" hidden style="background:#331111;border:2px solid #ff4444;border-radius:12px;padding:14px 16px;margin:0 auto 18px;max-width:900px;text-align:left;line-height:1.45;font-size:0.9rem;color:#ffcccc;"></div>
 
 <div class="tabbar" id="tabBar">
     <button class="tab-btn" data-tab="mouse" onclick="showTab('mouse')">🖱️ Mouse</button>
@@ -977,18 +976,6 @@ try {
       serverPort +
       "), firewall deschis și același Wi‑Fi.";
   }
-  const warn = document.getElementById("githubPagesWarning");
-  if (warn && (isGitHubPagesFrontend() || isHttpsRemoteFrontend())) {
-    warn.hidden = false;
-    warn.innerHTML =
-      "<strong>⚠️ De pe GitHub Pages comenzile NU pot ajunge la PC</strong> (pagina e HTTPS, serverul e HTTP).<br><br>" +
-      "<strong>Pe telefon folosește acest link</strong> (înlocuiește IP-ul cu al PC-ului tău):<br>" +
-      "<code style=\"color:#fff;background:#222;padding:4px 8px;border-radius:6px;display:inline-block;margin-top:8px;\">http://" +
-      serverIP + ":" + serverPort + "/local/index.html</code><br><br>" +
-      "1) Pornește <code>START_SERVER.bat</code> pe PC<br>" +
-      "2) Află IP-ul PC: <code>ipconfig</code> → IPv4 (ex. 192.168.0.34)<br>" +
-      "3) Deschide linkul de mai sus în Chrome/Safari pe telefon (același Wi‑Fi)";
-  }
 } catch (e) {}
 
   // ===== Conexiune: salvare IP/port + indicator status =====
@@ -1162,10 +1149,7 @@ try {
         console.log("✅ Răspuns server:", data.raw);
       })
       .catch(error => {
-        var extra = (isGitHubPagesFrontend() || isHttpsRemoteFrontend())
-          ? " — folosește http://IP_PC:8899/local/index.html, nu GitHub Pages"
-          : " — verifică IP/portul de mai sus și firewall";
-        showFeedback(`❌ ${error.message}${extra}`, true);
+        showFeedback(`❌ ${error.message} — verifică IP/portul de mai sus și firewall`, true);
         console.error("❌ Eroare conexiune:", error, url);
       });
   }
