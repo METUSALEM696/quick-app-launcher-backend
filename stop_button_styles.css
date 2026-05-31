@@ -1,0 +1,148 @@
+/* ═══════════════════════════════════════════════════════════════════
+   🛑 STOP BUTTON STYLES
+   ═══════════════════════════════════════════════════════════════════
+   Copiază tot acest CSS și adaugă-l la sfârșitul secțiunii <style>
+   ÎNAINTE de </style>
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ───────────────────────────────────────────────────────────────────
+   BUTON STOP - Circular, roșu, în colțul dreapta sus
+   ─────────────────────────────────────────────────────────────────── */
+.stop-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(231, 76, 60, 0.9);
+  border: 1px solid rgba(255,255,255,.28);
+  display: none;  /* Ascuns by default */
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all .2s ease;
+  backdrop-filter: blur(8px);
+  font-size: 1rem;
+  padding: 0;
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.stop-btn:hover {
+  transform: scale(1.15);
+  background: rgba(231, 76, 60, 1);
+  box-shadow: 0 8px 25px rgba(231, 76, 60, 0.5);
+}
+
+.stop-btn:active {
+  transform: scale(0.95);
+}
+
+/* Butonul e vizibil DOAR când app-ul rulează */
+.app-card.running .stop-btn {
+  display: flex;
+}
+
+
+/* ───────────────────────────────────────────────────────────────────
+   STATUS INDICATOR - Punctul colorat lângă numele app-ului
+   ─────────────────────────────────────────────────────────────────── */
+.status-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(231, 76, 60, 0.9);  /* Roșu = stopped */
+  margin-left: 8px;
+  box-shadow: 0 0 10px rgba(231, 76, 60, 0.6);
+  vertical-align: middle;
+  transition: all 0.3s ease;
+}
+
+/* Verde + pulse când app rulează */
+.app-card.running .status-indicator {
+  background: rgba(46, 204, 113, 0.9);  /* Verde = running */
+  box-shadow: 0 0 10px rgba(46, 204, 113, 0.6);
+  animation: pulse-status 2s ease-in-out infinite;
+}
+
+@keyframes pulse-status {
+  0%, 100% { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+  50% { 
+    opacity: 0.7; 
+    transform: scale(1.3); 
+  }
+}
+
+
+/* ───────────────────────────────────────────────────────────────────
+   STARE "RUNNING" - Card highlight când app rulează
+   ─────────────────────────────────────────────────────────────────── */
+.app-card.running {
+  /* Optional: adaugă un glow subtil când app rulează */
+  box-shadow: 
+    var(--shadow),
+    0 0 20px rgba(46, 204, 113, 0.15);
+}
+
+
+/* ───────────────────────────────────────────────────────────────────
+   MOBILE RESPONSIVE - Buton mai mare pe ecrane mici
+   ─────────────────────────────────────────────────────────────────── */
+@media (max-width: 520px) {
+  .stop-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+    top: 10px;
+    right: 10px;
+  }
+  
+  .status-indicator {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+
+/* ───────────────────────────────────────────────────────────────────
+   ANIMAȚIE LA HOVER PE CARD - Butonul devine mai vizibil
+   ─────────────────────────────────────────────────────────────────── */
+.app-card:hover .stop-btn {
+  /* Butonul devine mai opac la hover pe card */
+  background: rgba(231, 76, 60, 1);
+}
+
+
+/* ───────────────────────────────────────────────────────────────────
+   OPȚIONAL: Tooltip text pentru butonul stop
+   ─────────────────────────────────────────────────────────────────── */
+.stop-btn::before {
+  content: attr(title);
+  position: absolute;
+  bottom: -35px;
+  right: 0;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 20;
+}
+
+.stop-btn:hover::before {
+  opacity: 1;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   GATA! COPY-PASTE TOT CSS-UL DE MAI SUS ÎN <style>
+   ═══════════════════════════════════════════════════════════════════ */

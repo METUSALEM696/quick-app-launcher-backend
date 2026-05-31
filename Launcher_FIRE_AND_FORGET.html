@@ -1,0 +1,2636 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta name="color-scheme" content="dark light" />
+  <title>🚀 Quick App Launcher — Clean Edition</title>
+
+  <style>
+    :root{
+      --bg1:#0b1020;
+      --glass: rgba(255,255,255,.10);
+      --stroke: rgba(255,255,255,.18);
+      --shadow: 0 12px 35px rgba(0,0,0,.35);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.70);
+      --ok: rgba(46,204,113,.95);
+      --bad: rgba(231,76,60,.95);
+      --warn: rgba(241,196,15,.95);
+      --radius: 22px;
+    }
+
+    * { box-sizing:border-box; margin:0; padding:0; }
+    html, body { height:100%; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+      color: var(--text);
+      background: linear-gradient(135deg, var(--bg1) 0%, #141b3a 30%, #1a1e5a 65%, #2a1a4a 100%);
+      overflow-x:hidden;
+      padding: 18px;
+    }
+
+    body.effects-on::before{
+      content:"";
+      position:fixed; inset:-40%;
+      background: linear-gradient(135deg, rgba(102,126,234,.18), rgba(118,75,162,.18), rgba(255,79,216,.18));
+      filter: blur(70px);
+      animation: bgShift 16s ease-in-out infinite;
+      z-index:0;
+      pointer-events:none;
+    }
+    @keyframes bgShift{
+      0%{ transform: translate(-2%, -2%) rotate(0deg); opacity:.85; }
+      50%{ transform: translate(2%, 2%) rotate(8deg); opacity:1; }
+      100%{ transform: translate(-2%, -2%) rotate(0deg); opacity:.85; }
+    }
+
+    #particles, #stars {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      display: none;
+    }
+    body.effects-on #particles,
+    body.effects-on #stars {
+      display: block;
+    }
+
+    .particle {
+      position:absolute;
+      background: rgba(255,255,255,.55);
+      border-radius:50%;
+      animation: float linear infinite;
+      box-shadow: 0 0 10px rgba(255,255,255,.25);
+    }
+    @keyframes float{
+      0%{ transform: translateY(110vh) translateX(0) rotate(0deg); opacity:0; }
+      10%{ opacity:1; }
+      90%{ opacity:1; }
+      100%{ transform: translateY(-120px) translateX(var(--drift, 0px)) rotate(360deg); opacity:0; }
+    }
+    .star{
+      position:absolute;
+      width:2px; height:2px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.55);
+      opacity:.4;
+      animation: twinkle 2.8s ease-in-out infinite;
+    }
+    @keyframes twinkle{
+      0%,100%{ opacity:.25; transform: scale(.9); }
+      50%{ opacity:.85; transform: scale(1.35); }
+    }
+
+    .wrap{
+      position:relative;
+      z-index: 5;
+      max-width: 1500px;
+      margin: 0 auto;
+    }
+
+    .topbar{
+      display:flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .remoteControlBanner{
+      display:block;
+      width:100%;
+      margin: 0 0 14px 0;
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      text-decoration: none;
+      color: rgba(255,255,255,.96);
+      font-weight: 800;
+      font-size: 0.98rem;
+      line-height: 1.35;
+      background: linear-gradient(135deg, rgba(255,79,120,.38), rgba(120,80,255,.34), rgba(0,200,180,.24));
+      border: 1px solid rgba(255,255,255,.30);
+      box-shadow: 0 12px 32px rgba(0,0,0,.32);
+      transition: transform .15s ease, filter .15s ease;
+    }
+    .remoteControlBanner:hover{
+      filter: brightness(1.09);
+      transform: translateY(-2px);
+    }
+    .remoteControlBanner small{
+      display:block;
+      font-weight: 600;
+      opacity: .9;
+      font-size: .82rem;
+      margin-top: 6px;
+      line-height: 1.3;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+      border: 1px solid var(--stroke);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+    }
+
+    .brand .logo{
+      width:44px; height:44px;
+      border-radius: 16px;
+      display:grid;
+      place-items:center;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.28), rgba(255,255,255,.06));
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 10px 25px rgba(0,0,0,.25);
+      user-select:none;
+    }
+
+    .brand h1{
+      font-size: 1.18rem;
+      letter-spacing:.2px;
+      line-height: 1.1;
+    }
+    .brand .sub{
+      font-size: .92rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .controls{
+      display:flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .chip{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.16);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 25px rgba(0,0,0,.20);
+    }
+    .chip .k{
+      font-size: .92rem;
+      color: rgba(255,255,255,.75);
+      white-space: nowrap;
+    }
+    .btn{
+      cursor:pointer;
+      user-select:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.12);
+      color: var(--text);
+      font-weight: 700;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+      box-shadow: 0 10px 22px rgba(0,0,0,.22);
+    }
+    .btn:hover{ transform: translateY(-2px); box-shadow: 0 16px 35px rgba(0,0,0,.28); }
+    .btn:active{ transform: translateY(0px) scale(.98); }
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(102,126,234,.55), rgba(255,79,216,.28));
+      border-color: rgba(255,255,255,.22);
+    }
+
+    select, input{
+      border: 1px solid rgba(255,255,255,.18);
+      outline: none;
+      color: rgba(255,255,255,.92);
+      background: rgba(0,0,0,.18);
+      backdrop-filter: blur(10px);
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-weight: 600;
+    }
+    select:hover, input:hover{
+      border-color: rgba(255,255,255,.28);
+    }
+    select option{ color:#111; }
+
+    .search-row{
+      display:flex;
+      gap: 12px;
+      align-items:center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin: 14px 0 18px;
+    }
+    .search{
+      flex: 1 1 520px;
+      position: relative;
+    }
+    .search input{
+      width:100%;
+      font-size: 1.05rem;
+      padding: 14px 48px 14px 46px;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+    }
+    .search .icon{
+      position:absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity:.85;
+      user-select:none;
+    }
+    .search .hint{
+      position:absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: .86rem;
+      color: rgba(255,255,255,.70);
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.10);
+      padding: 6px 10px;
+      border-radius: 999px;
+      user-select:none;
+    }
+
+    .statsbar{
+      flex: 0 0 auto;
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .pill{
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: 0 10px 22px rgba(0,0,0,.20);
+      backdrop-filter: blur(10px);
+      font-weight: 700;
+      color: rgba(255,255,255,.90);
+    }
+    .pill small{
+      font-weight: 600;
+      color: rgba(255,255,255,.72);
+      margin-left: 6px;
+    }
+    .status-dot{
+      width:10px; height:10px;
+      border-radius: 999px;
+      background: rgba(231,76,60,.95);
+      box-shadow: 0 0 18px rgba(231,76,60,.55);
+      display:inline-block;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    .status-dot.ok{
+      background: rgba(46,204,113,.95);
+      box-shadow: 0 0 18px rgba(46,204,113,.55);
+    }
+
+    .apps-container{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 16px;
+      padding-bottom: 120px;
+      transition: all 0.3s ease;
+    }
+
+    .apps-container.list-view{
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .apps-container.list-view .app-card{
+      min-height: auto;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .apps-container.list-view .app-top{
+      flex-shrink: 0;
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .apps-container.list-view .app-icon{
+      font-size: 2rem;
+    }
+
+    .apps-container.list-view .app-info{
+      flex: 1;
+    }
+
+    .apps-container.list-view .app-name{
+      margin-top: 0;
+      font-size: 1.1rem;
+    }
+
+    .apps-container.list-view .app-desc{
+      margin-top: 2px;
+      min-height: auto;
+    }
+
+    .apps-container.list-view .keys{
+      margin-top: 4px;
+    }
+
+    .category-title{
+      grid-column: 1 / -1;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.16);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      font-size: 1.1rem;
+      font-weight: 900;
+      letter-spacing: .2px;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+    }
+    .category-title .mini{
+      font-size: .92rem;
+      color: rgba(255,255,255,.74);
+      font-weight: 700;
+    }
+
+    .app-card{
+      position: relative;
+      border-radius: var(--radius);
+      background:
+        radial-gradient(circle at 25% 20%, rgba(255,255,255,.18), rgba(255,255,255,.08)),
+        rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.16);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+      padding: 18px 16px;
+      cursor: pointer;
+      overflow:hidden;
+      transition: transform .22s cubic-bezier(.2,.9,.2,1.2), box-shadow .22s ease, border-color .22s ease;
+      transform: translateZ(0);
+      animation: pop .5s ease both;
+      min-height: 128px;
+    }
+    @keyframes pop{
+      from{ opacity:0; transform: translateY(10px) scale(.98); }
+      to{ opacity:1; transform: translateY(0) scale(1); }
+    }
+
+    .app-card::before{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,.22), transparent);
+      transform: rotate(25deg);
+      translate: -30% 0;
+      transition: translate .55s ease;
+      pointer-events:none;
+    }
+    .app-card:hover::before{ translate: 30% 0; }
+    .app-card:hover{
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+      border-color: rgba(255,255,255,.28);
+    }
+    .app-card:active{ transform: translateY(-2px) scale(.99); }
+
+    /* ⭐ STOP BUTTON STYLES */
+    .stop-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(231, 76, 60, 0.9);
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+    }
+
+    .stop-btn:hover {
+      background: rgba(192, 57, 43, 1);
+      transform: scale(1.1);
+      box-shadow: 0 6px 18px rgba(231, 76, 60, 0.6);
+    }
+
+    .stop-btn:active {
+      transform: scale(0.95);
+    }
+
+    .app-card.running .stop-btn {
+      display: flex;
+    }
+
+    /* ⭐ STATUS INDICATOR */
+    .status-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(231, 76, 60, 0.9);
+      margin-left: 8px;
+      vertical-align: middle;
+      box-shadow: 0 0 8px rgba(231, 76, 60, 0.6);
+      animation: pulse-status 2s ease-in-out infinite;
+    }
+
+    .app-card.running .status-indicator {
+      background: rgba(46, 204, 113, 0.9);
+      box-shadow: 0 0 12px rgba(46, 204, 113, 0.8);
+    }
+
+    @keyframes pulse-status {
+      0%, 100% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .app-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .app-icon{
+      font-size: 2.8rem;
+      line-height: 1;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.25));
+      transition: transform .22s ease;
+      user-select:none;
+    }
+    .app-card:hover .app-icon{ transform: rotate(8deg) scale(1.08); }
+
+    .badge{
+      font-size: .78rem;
+      font-weight: 900;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.20);
+      border: 1px solid rgba(255,255,255,.16);
+      color: rgba(255,255,255,.90);
+      user-select:none;
+      white-space: nowrap;
+    }
+    .badge.gold{
+      background: linear-gradient(135deg, rgba(255,215,0,.22), rgba(255,79,216,.10));
+      border-color: rgba(255,215,0,.28);
+    }
+
+    .app-name{
+      margin-top: 10px;
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: rgba(255,255,255,.92);
+      text-shadow: 0 6px 18px rgba(0,0,0,.20);
+    }
+    .app-desc{
+      margin-top: 6px;
+      font-size: .88rem;
+      color: rgba(255,255,255,.72);
+      line-height: 1.25;
+      min-height: 2.2em;
+    }
+
+    .keys{
+      margin-top: 10px;
+      display:flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      opacity:.95;
+    }
+    .key{
+      font-size: .78rem;
+      font-weight: 800;
+      padding: 6px 9px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.82);
+      user-select:none;
+    }
+
+    .app-card.launching{
+      animation: launch .6s ease-in-out;
+    }
+    @keyframes launch{
+      0%{ transform: scale(1); }
+      35%{ transform: scale(.96) rotate(-2deg); }
+      70%{ transform: scale(1.06) rotate(2deg); }
+      100%{ transform: scale(1); }
+    }
+
+    .app-card.loading {
+      position: relative;
+      pointer-events: none;
+      opacity: 0.75;
+    }
+
+    .app-card.loading::after {
+      content: "⚡";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3rem;
+      animation: pulse-icon 0.6s ease-in-out infinite;
+      pointer-events: none;
+      filter: drop-shadow(0 0 20px rgba(255,215,0,0.8));
+    }
+
+    @keyframes pulse-icon {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+      50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.6; }
+    }
+
+    .notification{
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      min-width: 260px;
+      max-width: 520px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(46,204,113,.92);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 20px 60px rgba(0,0,0,.40);
+      display:none;
+      z-index: 2000;
+      backdrop-filter: blur(10px);
+      animation: toastIn .5s cubic-bezier(.2,.9,.2,1.2);
+      font-weight: 900;
+    }
+    .notification.error{ background: rgba(231,76,60,.92); }
+    .notification.warn{ background: rgba(241,196,15,.92); color: rgba(0,0,0,.86); }
+    @keyframes toastIn{
+      0%{ opacity:0; transform: translateX(220px) rotate(4deg); }
+      70%{ opacity:1; transform: translateX(-8px) rotate(-1deg); }
+      100%{ opacity:1; transform: translateX(0) rotate(0deg); }
+    }
+
+    .hotbar{
+      position: fixed;
+      left: 50%;
+      bottom: 10px;
+      transform: translateX(-50%);
+      z-index: 1500;
+      display:flex;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.38);
+      border: 1px solid rgba(255,255,255,.16);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 22px 70px rgba(0,0,0,.55);
+      max-width: min(980px, calc(100vw - 20px));
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .hotbar::-webkit-scrollbar{ display:none; }
+    .hot{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.10);
+      color: rgba(255,255,255,.92);
+      font-weight: 900;
+      cursor:pointer;
+      user-select:none;
+      white-space: nowrap;
+      transition: transform .18s ease, background .18s ease;
+    }
+    .hot:hover{ transform: translateY(-2px); background: rgba(255,255,255,.14); }
+    .hot:active{ transform: translateY(0) scale(.98); }
+
+
+.chip{
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(0,0,0,.25);
+  color: #fff;
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  user-select: none;
+}
+
+.chip:hover{ transform: translateY(-1px); }
+
+.chip.danger{
+  border-color: rgba(255,70,70,.35);
+  background: rgba(255,70,70,.14);
+}
+
+
+.kill-btn{
+  appearance: none;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(20, 24, 55, .35);
+  color: rgba(255,255,255,.92);
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-weight: 700;
+  letter-spacing: .2px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  transition: transform .12s ease, filter .12s ease, background .12s ease, border-color .12s ease;
+}
+
+.kill-btn:hover{
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+  border-color: rgba(255,255,255,.28);
+}
+
+.kill-btn:active{
+  transform: translateY(0px) scale(.99);
+  filter: brightness(.98);
+}
+
+.kill-btn--safe{
+  background: rgba(190, 80, 80, .22);
+}
+
+.kill-btn--unsafe{
+  background: rgba(255, 60, 60, .28);
+  border-color: rgba(255, 120, 120, .35);
+}
+
+.kill-btn--visible{
+  background: rgba(190, 80, 80, .22);
+}
+
+
+
+.app-card.keyboard-selected {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5) !important;
+  transform: scale(1.03) !important;
+}
+
+
+/* Favorite star button */
+.favorite-star {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 10;
+  padding: 4px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.favorite-star:hover {
+  transform: scale(1.3) rotate(20deg);
+  filter: drop-shadow(0 4px 8px rgba(255,215,0,0.6));
+}
+
+.favorite-star:active {
+  transform: scale(1.1) rotate(-10deg);
+}
+
+/* Favorite indicator on card */
+.app-card:has(.favorite-star[style*="opacity: 1"]) {
+  border-color: rgba(255, 215, 0, 0.3);
+}
+
+
+
+/* Category collapse button */
+.collapse-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+  margin-right: 8px;
+  transition: all 0.2s;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1;
+}
+
+.collapse-btn:hover {
+  color: rgba(255, 255, 255, 1);
+  transform: scale(1.2);
+}
+
+.category-title.collapsed {
+  opacity: 0.6;
+}
+
+.category-title {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.category-title:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Smooth collapse animation */
+.app-card {
+  transition: all 0.3s ease;
+}
+
+.app-card[data-collapsed="true"] {
+  opacity: 0;
+  transform: scale(0.8);
+  height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+
+
+
+
+
+
+    @media (max-width: 520px){
+      body{ padding: 12px; }
+      .brand h1{ font-size: 1.06rem; }
+      .brand .sub{ display:none; }
+      .search .hint{ display:none; }
+      .apps-container{ grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); }
+    }
+
+
+    @media (prefers-reduced-motion: reduce){
+      *{ animation: none !important; transition: none !important; }
+      body::before{ display:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="particles"></div>
+  <div id="stars"></div>
+
+  <div class="wrap">
+
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">🚀</div>
+        <div>
+          <h1>Quick App Launcher <span style="opacity:.85;">— Clean</span></h1>
+          <div class="sub">Simplu • rapid • eficient</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="chip">
+          <span class="k"><span id="serverDot" class="status-dot"></span>Server:</span>
+          <span id="serverText" style="font-weight:900;">checking…</span>
+        </div>
+
+        <div class="chip">
+          <span id="soundToggle" class="btn" style="padding:10px 12px;">🔊</span>
+          <select id="soundSelector">
+            <option value="click">Arcade Bleep</option>
+            <option value="click-alt1">ATM Key</option>
+            <option value="click-alt2">Keyboard</option>
+          </select>
+        </div>
+
+        <button class="btn" id="viewToggle" title="Schimbă vizualizare (Grid/List) - apasă V">
+          <span id="viewIcon">📊</span> <span id="viewText">Grid</span>
+        </button>
+
+        <button class="btn" id="effectsToggle" title="Activează/Dezactivează efecte vizuale - apasă E">
+          <span id="effectsIcon">🌑</span> <span id="effectsText">Efecte OFF</span>
+        </button>
+<button id="refreshStatusBtn" class="chip" title="Re-verifică status la aplicațiile vizibile">
+  🔄 <span>Refresh Status</span>
+</button>
+
+<button id="btnKillAllSafe" class="kill-btn kill-btn--safe">KILL ALL (SAFE)</button>
+<button id="btnKillAllUnsafe" class="kill-btn kill-btn--unsafe">KILL ALL (UNSAFE)</button>
+<button id="btnKillVisible" class="kill-btn kill-btn--visible">KILL VISIBLE</button>
+
+
+
+      </div>
+    </div>
+
+    <a class="remoteControlBanner" href="index.html?v=3" id="remoteControlLink">
+      📱 Panou complet: System Control, TURN OFF, Sleep, Hibernate, timer 10s…
+      <small>Deschis din fișier: <span id="remoteControlUrlHint">index.html</span> (lângă acest launcher). Pe telefon, cu server pornit: <span id="remoteControlHttpHint"></span></small>
+    </a>
+
+    <div class="search-row">
+      <div class="search">
+        <div class="icon">🔎</div>
+        <input id="search" type="text" placeholder="Caută aplicații… ( / ) • Enter = lansează primul • Esc = clear" autocomplete="off" />
+        <div class="hint">/ focus • V view • E efecte • M mute</div>
+      </div>
+
+      <div class="statsbar">
+        <div class="pill">
+          <span id="visibleCount">—</span><small>vizibile</small>
+        </div>
+        <div class="pill">
+          <span id="totalCount">—</span><small>total</small>
+        </div>
+        <div class="pill">
+          <span id="lastLaunch">—</span><small>last</small>
+        </div>
+        <div class="pill">
+          <span id="serverStatus">🟡 Checking...</span><small>server</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="apps-container" id="grid">
+      <!-- Categories and apps will be here -->
+    </div>
+  </div>
+
+  <div id="notification" class="notification"></div>
+
+
+
+<script>
+// =========================
+// CONFIG
+// =========================
+const SERVER = (window.location.port === "8899")
+  ? window.location.origin
+  : "http://127.0.0.1:8899";
+
+document.addEventListener("DOMContentLoaded", () => {
+  const hint = document.getElementById("remoteControlUrlHint");
+  const httpHint = document.getElementById("remoteControlHttpHint");
+  try {
+    const here = new URL(".", location.href).href;
+    const idx = new URL("index.html", here).href;
+    if (hint) hint.textContent = idx;
+    if (httpHint) httpHint.textContent = SERVER.replace(/\/$/, "") + "/local/index.html";
+  } catch (e) {
+    if (hint) hint.textContent = "index.html (același folder)";
+    if (httpHint) httpHint.textContent = SERVER.replace(/\/$/, "") + "/local/index.html";
+  }
+});
+
+const $  = (q, el = document) => el.querySelector(q);
+const $$ = (q, el = document) => Array.from(el.querySelectorAll(q));
+
+let SERVER_ONLINE = false;
+
+function isServerOnline(){
+  return SERVER_ONLINE;
+}
+
+// cooldown killall (opțional)
+let killAllCooldownUntil = 0;      // timestamp ms
+const KILLALL_COOLDOWN_MS = 10000; // 10 sec
+
+function safeJson(res){
+  return res.json().catch(()=> ({}));
+}
+
+function toAbsoluteUrl(url){
+  if(!url) return "";
+  if(url.startsWith("http://") || url.startsWith("https://")) return url;
+  if(location.protocol === "file:"){
+    try{
+      return new URL(url.replace(/^\/local\//, ""), new URL(".", location.href).href).href;
+    }catch(e){
+      return url;
+    }
+  }
+  if(url.startsWith("/local/")) return SERVER.replace(/\/$/, "") + url;
+  if(url.startsWith("index.html")){
+    return SERVER.replace(/\/$/, "") + "/local/" + url;
+  }
+  return SERVER.replace(/\/$/, "") + (url.startsWith("/") ? url : ("/" + url));
+}
+
+// =========================
+// DEBUG & HELPER FUNCTIONS
+// =========================
+function debugPush(msg) { 
+  console.log('[DEBUG]', msg); 
+}
+
+function toggleDebug() {
+  console.log('🔧 Debug mode toggled');
+  toast("🔧 Debug mode", "ok");
+}
+
+// =========================
+// DATA
+// =========================
+const APPS_DATA = [
+  {cat:'special', app:'github-page', url:'https://metusalem696.github.io/quick-app-launcher/', icon:'🌟', name:'GitHub Page', desc:'My Web Project', tags:'github web project site', badge:'SPECIAL', badgeGold:true},
+  {cat:'special', app:'esp32-volume', url:'index.html?v=3', icon:'📱', name:'Remote Control (telefon)', desc:'System Control: Sleep, TURN OFF, Screenshot, Alt+Tab…', tags:'remote phone system control sleep shutdown volume local', badge:'LOCAL', badgeGold:true},
+
+  {cat:'dev', app:'code', icon:'💻', name:'VS Code', desc:'Code Editor', tags:'vscode editor code', badge:'LOCAL'},
+  {cat:'dev', app:'claudedesktop', icon:'🤖', name:'Claude Desktop', desc:'AI Assistant', tags:'claude ai assistant', badge:'LOCAL'},
+{cat:'dev', app:'chatgpt', icon:'🌀', name:'ChatGPT', desc:'AI Assistant', tags:'chatgpt openai ai assistant', badge:'LOCAL'},
+{
+  cat:'dev',
+  app:'chatgpt-desktop',
+  icon:'🧠',
+  name:'ChatGPT Desktop',
+  desc:'OpenAI Desktop App',
+  tags:'chatgpt openai desktop ai assistant',
+  badge:'LOCAL',
+  exe:'C:\\Users\\HERCULE SI DANIELA\\AppData\\Local\\Microsoft\\WindowsApps\\OpenAI.ChatGPT-Desktop_2p2nqsd0c76g0\\chatgpt.exe'
+},
+
+  {cat:'dev', app:'claudecode', icon:'⚡', name:'Claude Code', desc:'AI Coding', tags:'claude code ai coding', badge:'LOCAL'},
+  {cat:'dev', app:'wt', icon:'⌨️', name:'Terminal', desc:'Command Line', tags:'terminal windows terminal cmd', badge:'LOCAL'},
+  {cat:'dev', app:'arduino', icon:'🔌', name:'Arduino IDE', desc:'Embedded Dev', tags:'arduino ide embedded', badge:'LOCAL'},
+  {cat:'dev', app:'git', icon:'🐙', name:'Git Bash', desc:'Version Control', tags:'git bash version control', badge:'LOCAL'},
+  {cat:'dev', app:'python', icon:'🐍', name:'Python', desc:'Programming', tags:'python programming', badge:'LOCAL'},
+
+  {cat:'design', app:'easyeda', icon:'⚡', name:'EasyEDA Pro', desc:'PCB Design', tags:'easyeda pcb design', badge:'LOCAL'},
+  {cat:'design', app:'solidworks', icon:'🎨', name:'SOLIDWORKS', desc:'3D CAD', tags:'solidworks cad 3d', badge:'LOCAL'},
+  {cat:'design', app:'cura', icon:'🖨️', name:'Cura', desc:'3D Slicer', tags:'cura slicer 3d printing', badge:'LOCAL'},
+  {cat:'design', app:'nrfconnect', icon:'📡', name:'nRF Connect', desc:'Bluetooth Dev', tags:'nrf connect bluetooth ble', badge:'LOCAL'},
+
+  {cat:'browsers', app:'chrome', icon:'🌐', name:'Chrome', desc:'Web Browser', tags:'chrome browser', badge:'LOCAL'},
+  {cat:'browsers', app:'brave', icon:'🦁', name:'Brave', desc:'Privacy Browser', tags:'brave browser privacy', badge:'LOCAL'},
+  {cat:'browsers', app:'chatgpt', url:'https://chat.openai.com', icon:'🤖', name:'ChatGPT', desc:'AI Chat', tags:'chatgpt ai web', badge:'WEB'},
+
+  {cat:'office', app:'word', icon:'📝', name:'Word', desc:'Documents', tags:'word documents office', badge:'LOCAL'},
+  {cat:'office', app:'excel', icon:'📊', name:'Excel', desc:'Spreadsheets', tags:'excel spreadsheets office', badge:'LOCAL'},
+
+  {cat:'media', app:'vlc', icon:'🎬', name:'VLC Player', desc:'Media Player', tags:'vlc media player', badge:'LOCAL'},
+  {cat:'media', app:'qbittorrent', icon:'📥', name:'qBittorrent', desc:'Torrent', tags:'qbittorrent torrent', badge:'LOCAL'},
+
+  {cat:'security', app:'surfshark', icon:'🦈', name:'Surfshark', desc:'VPN', tags:'surfshark vpn', badge:'LOCAL'},
+  {cat:'security', app:'keepassxc', icon:'🔑', name:'KeePassXC', desc:'Password Manager', tags:'keepassxc passwords', badge:'LOCAL'},
+  {cat:'security', app:'totalav', icon:'🛡️', name:'TotalAV', desc:'Antivirus', tags:'totalav antivirus security', badge:'LOCAL'},
+
+  {cat:'tools', app:'controlpanel', icon:'⚙️', name:'Control Panel', desc:'System Settings', tags:'control panel settings system windows config', badge:'LOCAL'},
+  {cat:'tools', app:'clock', icon:'⏰', name:'Clock', desc:'Alarms & Timer', tags:'clock alarms timer stopwatch windows time', badge:'LOCAL'},
+  {cat:'tools', app:'intelgraphics', icon:'🖥️', name:'Intel Graphics', desc:'GPU Settings', tags:'intel graphics gpu display settings control 3d', badge:'LOCAL'},
+  {cat:'tools', app:'photos', icon:'📷', name:'Photos', desc:'Photo Gallery', tags:'photos pictures gallery images view edit windows', badge:'LOCAL'},
+  {cat:'utils', app:'taskscheduler', icon:'🗓️', name:'Task Scheduler', desc:'Scheduled Tasks', tags:'task scheduler tasks windows', badge:'LOCAL'},
+
+  {cat:'utils', app:'wintools', icon:'🛠️', name:'Windows Tools', desc:'Admin Tools', tags:'windows tools admin control panel system', badge:'LOCAL'},
+  {cat:'utils', app:'explorer', icon:'📁', name:'File Explorer', desc:'Files', tags:'file explorer', badge:'LOCAL'},
+  {cat:'utils', app:'calc', icon:'🔢', name:'Calculator', desc:'Math', tags:'calculator', badge:'LOCAL'},
+  {cat:'utils', app:'notepad', icon:'📝', name:'Notepad', desc:'Text Editor', tags:'notepad text editor', badge:'LOCAL'},
+  {cat:'utils', app:'taskmgr', icon:'📊', name:'Task Manager', desc:'System Monitor', tags:'task manager system', badge:'LOCAL'},
+  {cat:'utils', app:'journal', icon:'📓', name:'Journal', desc:'Notes App', tags:'journal notes', badge:'LOCAL'},
+  {cat:'utils', app:'throttlestop', icon:'⚙️', name:'ThrottleStop', desc:'CPU Control', tags:'throttlestop cpu control', badge:'LOCAL'}
+];
+
+const CATEGORY_TITLES = {
+  special:  {icon:'⭐', name:'Special Apps',        sub:'favorite'},
+  dev:      {icon:'💻', name:'Development Tools',   sub:'code • ai • terminal'},
+  design:   {icon:'🎨', name:'Design & 3D',         sub:'pcb • cad • slicer'},
+  browsers: {icon:'🌐', name:'Browsers',            sub:'web • privacy'},
+  office:   {icon:'📄', name:'Office',              sub:'docs • sheets'},
+  media:    {icon:'🎬', name:'Media',               sub:'player • downloads'},
+  security: {icon:'🔐', name:'Security',            sub:'vpn • passwords'},
+  tools:    {icon:'🔧', name:'Windows Tools',       sub:'system • utilities • settings'},
+  utils:    {icon:'🛠️', name:'Utilities',           sub:'system • tools'}
+};
+
+const IMPORTANT_APPS = ['code', 'solidworks', 'word', 'excel', 'cura', 'easyeda'];
+
+// =========================
+// KILL ALL (SAFE / UNSAFE)
+// =========================
+
+// Browser protection (SAFE mode uses it)
+const PROTECT_FROM_KILLALL = new Set([
+  "chrome", "brave", "edge", "msedge", "firefox", "vivaldi", "opera"
+]);
+
+function isProtectedFromKillAll(appKey){
+  return PROTECT_FROM_KILLALL.has((appKey || "").toLowerCase());
+}
+
+// ✅ helper: numai aplicații locale (fără data-url) + (opțional) fără browsere
+function getLocalKeys({ protectBrowsers = true } = {}){
+  const cards = $$(".app-card").filter(c => c.style.display !== "none");
+  return cards
+    .filter(c => !c.getAttribute("data-url"))              // local only
+    .map(c => c.getAttribute("data-app"))
+    .filter(Boolean)
+    .filter(k => protectBrowsers ? !isProtectedFromKillAll(k) : true);
+}
+
+
+
+
+
+
+
+
+
+
+// ✅ helper: overlay mare (ca să vezi clar ce se întâmplă)
+function showKillOverlay(text){
+  let ov = document.getElementById("killOverlay");
+  if(!ov){
+    ov = document.createElement("div");
+    ov.id = "killOverlay";
+    ov.style.cssText = `
+      position:fixed; inset:0; z-index:999999;
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(0,0,0,0.85);
+      font-family: 'Segoe UI Emoji','Segoe UI',Arial,sans-serif;
+      text-align:center; padding:24px;
+    `;
+    ov.innerHTML = `
+      <div style="
+        max-width: 680px;
+        background: rgba(25,25,25,0.95);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 16px;
+        padding: 22px 18px;
+        box-shadow: 0 10px 35px rgba(0,0,0,0.5);
+      ">
+        <div id="killOverlayText" style="font-size:22px; line-height:1.35; color:#fff;"></div>
+        <div style="margin-top:12px; font-size:13px; opacity:.85; color:#ddd;">
+          Dacă e UNSAFE și se închide browserul, e normal să dispară pagina.
+        </div>
+      </div>
+    `;
+    document.body.appendChild(ov);
+  }
+
+  document.getElementById("killOverlayText").textContent = text;
+  ov.style.display = "flex";
+}
+
+function hideKillOverlay(){
+  const ov = document.getElementById("killOverlay");
+  if(ov) ov.style.display = "none";
+}
+
+// =========================
+// STATE
+// =========================
+let viewMode = "grid";
+let effectsEnabled = false;
+let soundEnabled = true;
+let currentSound = "click";
+
+const launchCooldowns = new Map();
+const COOLDOWN_MS = 1500;
+// ✅ ADAUGĂ AICI:
+let selectedCardIndex = -1;  // Pentru keyboard navigation
+// Global search input reference
+let searchInput = null;
+
+
+// ✅ ADAUGĂ AICI:
+let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+
+
+// ✅ ADAUGĂ AICI:
+let collapsedCategories = JSON.parse(localStorage.getItem("collapsedCategories") || "[]");
+// =========================
+// UI HELPERS
+// =========================
+function nowClock(){
+  const d = new Date();
+  return d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit", second:"2-digit"});
+}
+
+let toastTimer = null;
+function toast(msg, type = "ok"){
+  const el = $("#notification");
+  if(!el) return;
+  el.textContent = msg;
+  el.className = "notification";
+  if(type === "error") el.classList.add("error");
+  if(type === "warn")  el.classList.add("warn");
+  el.style.display = "block";
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ el.style.display = "none"; }, 2600);
+}
+
+let searchToastTimer = null;
+function toastSearch(text){
+  clearTimeout(searchToastTimer);
+  if(!text) return;
+  toast(`🔎 Search: ${text}`, "ok");
+  searchToastTimer = setTimeout(()=>{}, 0);
+}
+
+function stripDiacritics(s){
+  try{ return (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+  catch{ return (s || ""); }
+}
+
+const audioCtx = (() => {
+  try { return new (window.AudioContext || window.webkitAudioContext)(); }
+  catch { return null; }
+})();
+
+function beep({freq=700, dur=0.05, type="sine", vol=0.07}={}){
+  if(!soundEnabled || !audioCtx) return;
+  try{
+    if(audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    g.gain.value = vol;
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start();
+    o.stop(audioCtx.currentTime + dur);
+  }catch{}
+}
+
+function playSound(kind){
+  if(!soundEnabled) return;
+  if(kind === "error"){
+    beep({freq: 200, dur: 0.08, type:"square", vol:0.09});
+    setTimeout(()=>beep({freq: 150, dur: 0.09, type:"square", vol:0.08}), 60);
+    return;
+  }
+  if(kind === "success"){
+    beep({freq: 880, dur: 0.06, type:"triangle", vol:0.07});
+    setTimeout(()=>beep({freq: 1320, dur: 0.06, type:"triangle", vol:0.07}), 70);
+    return;
+  }
+  if(currentSound === "click"){
+    beep({freq: 740, dur: 0.045, type:"square", vol:0.06});
+  } else if(currentSound === "click-alt1"){
+    beep({freq: 520, dur: 0.03, type:"triangle", vol:0.06});
+    setTimeout(()=>beep({freq: 680, dur: 0.03, type:"triangle", vol:0.05}), 35);
+  } else {
+    beep({freq: 320, dur: 0.02, type:"sine", vol:0.05});
+    setTimeout(()=>beep({freq: 420, dur: 0.02, type:"sine", vol:0.04}), 25);
+  }
+}
+
+function savePrefs(){
+  localStorage.setItem("viewMode", viewMode);
+  localStorage.setItem("effectsEnabled", String(effectsEnabled));
+  localStorage.setItem("soundEnabled", String(soundEnabled));
+  localStorage.setItem("currentSound", currentSound);
+}
+
+function updateSoundIcon(){
+  const st = $("#soundToggle");
+  if(!st) return;
+  st.textContent = soundEnabled ? "🔊" : "🔇";
+  st.style.opacity = soundEnabled ? "1" : ".6";
+}
+
+function loadPrefs(){
+  const vm = localStorage.getItem("viewMode");
+  const ef = localStorage.getItem("effectsEnabled");
+  const se = localStorage.getItem("soundEnabled");
+  const cs = localStorage.getItem("currentSound");
+
+  if(vm) viewMode = vm;
+  if(ef !== null) effectsEnabled = (ef === "true");
+  if(se !== null) soundEnabled = (se === "true");
+  if(cs) currentSound = cs;
+
+  const grid = $("#grid");
+  if(viewMode === "list") grid?.classList.add("list-view");
+
+  const viewIcon = $("#viewIcon");
+  const viewText = $("#viewText");
+  if(viewIcon) viewIcon.textContent = (viewMode === "list") ? "📋" : "📊";
+  if(viewText) viewText.textContent = (viewMode === "list") ? "List" : "Grid";
+
+  if(effectsEnabled){
+    document.body.classList.add("effects-on");
+    const effectsIcon = $("#effectsIcon");
+    const effectsText = $("#effectsText");
+    if(effectsIcon) effectsIcon.textContent = "✨";
+    if(effectsText) effectsText.textContent = "Efecte ON";
+  }else{
+    document.body.classList.remove("effects-on");
+    const effectsIcon = $("#effectsIcon");
+    const effectsText = $("#effectsText");
+    if(effectsIcon) effectsIcon.textContent = "🌑";
+    if(effectsText) effectsText.textContent = "Efecte OFF";
+  }
+
+  const soundSelector = $("#soundSelector");
+  if(soundSelector) soundSelector.value = currentSound;
+  updateSoundIcon();
+}
+
+function createParticles(){
+  if(!effectsEnabled) return;
+  const container = $("#particles");
+  if(!container) return;
+  container.innerHTML = "";
+  for(let i=0;i<34;i++){
+    const p = document.createElement("div");
+    p.className = "particle";
+    const size = Math.random()*6 + 2;
+    p.style.width = size+"px";
+    p.style.height = size+"px";
+    p.style.left = (Math.random()*100)+"%";
+    p.style.animationDuration = (Math.random()*12 + 10)+"s";
+    p.style.animationDelay = (Math.random()*6)+"s";
+    p.style.setProperty("--drift", (Math.random()*120 - 60)+"px");
+    container.appendChild(p);
+  }
+}
+
+function createStars(){
+  if(!effectsEnabled) return;
+  const container = $("#stars");
+  if(!container) return;
+  container.innerHTML = "";
+  for(let i=0;i<70;i++){
+    const s = document.createElement("div");
+    s.className = "star";
+    s.style.left = (Math.random()*100)+"%";
+    s.style.top  = (Math.random()*100)+"%";
+    s.style.animationDelay = (Math.random()*2.8)+"s";
+    s.style.opacity = (Math.random()*0.55 + 0.15).toFixed(2);
+    container.appendChild(s);
+  }
+}
+
+function toggleViewMode(){
+  viewMode = (viewMode === "grid") ? "list" : "grid";
+  const grid = $("#grid");
+  if(viewMode === "list") grid?.classList.add("list-view");
+  else grid?.classList.remove("list-view");
+
+  const viewIcon = $("#viewIcon");
+  const viewText = $("#viewText");
+  if(viewIcon) viewIcon.textContent = (viewMode === "list") ? "📋" : "📊";
+  if(viewText) viewText.textContent = (viewMode === "list") ? "List" : "Grid";
+
+  toast(viewMode === "list" ? "📋 View: List" : "📊 View: Grid", "ok");
+  savePrefs();
+  playSound("click");
+}
+
+function toggleEffects(){
+  effectsEnabled = !effectsEnabled;
+  if(effectsEnabled){
+    document.body.classList.add("effects-on");
+    createParticles();
+    createStars();
+    const effectsIcon = $("#effectsIcon");
+    const effectsText = $("#effectsText");
+    if(effectsIcon) effectsIcon.textContent = "✨";
+    if(effectsText) effectsText.textContent = "Efecte ON";
+    toast("✨ Efecte vizuale: ON", "ok");
+  }else{
+    document.body.classList.remove("effects-on");
+    const particles = $("#particles");
+    const stars = $("#stars");
+    if(particles) particles.innerHTML = "";
+    if(stars) stars.innerHTML = "";
+    const effectsIcon = $("#effectsIcon");
+    const effectsText = $("#effectsText");
+    if(effectsIcon) effectsIcon.textContent = "🌑";
+    if(effectsText) effectsText.textContent = "Efecte OFF";
+    toast("🌑 Efecte vizuale: OFF", "ok");
+  }
+  savePrefs();
+  playSound("click");
+}
+
+function computeCounts(){
+  const cards = $$(".app-card");
+  const visible = cards.filter(c => c.style.display !== "none").length;
+  const visibleCount = $("#visibleCount");
+  const totalCount = $("#totalCount");
+  if(visibleCount) visibleCount.textContent = visible;
+  if(totalCount) totalCount.textContent = cards.length;
+}
+
+function setLastLaunch(label){
+  const lastLaunch = $("#lastLaunch");
+  if(lastLaunch) lastLaunch.textContent = label;
+}
+
+// =========================
+// FILTER
+// =========================
+function normalize(s){ return stripDiacritics((s || "").toLowerCase().trim()); }
+
+// =========================
+// FILTER - cu protecție extra
+// =========================
+
+
+
+
+
+
+
+function filter(){
+  if(!searchInput) return;
+  
+  const q = normalize(searchInput.value);
+  const grid = $("#grid");
+  
+  // Dacă nu cauți și ai favorites, rebuild HTML
+  if(!q && favorites.length > 0){
+    rebuildWithFavorites();
+    return;
+  }
+  
+  // Altfel, doar show/hide normal
+  const cards = $$(".app-card");
+  const cats = $$(".category-title");
+
+  cards.forEach(card => {
+    const hay = normalize(card.textContent + " " + (card.getAttribute("data-tags")||""));
+    const matchesSearch = !q || hay.includes(q);
+    
+    const catKey = card.getAttribute("data-cat");
+    const isCategoryCollapsed = collapsedCategories.includes(catKey);
+    
+    if(matchesSearch && !isCategoryCollapsed){
+      card.style.display = "block";
+      card.removeAttribute("data-collapsed");
+    }else{
+      card.style.display = "none";
+      if(isCategoryCollapsed) card.setAttribute("data-collapsed", "true");
+    }
+  });
+
+  cats.forEach(cat => {
+    if(!q){
+      cat.style.display = "flex";
+      return;
+    }
+    
+    let next = cat.nextElementSibling;
+    let ok = false;
+    while(next && !next.classList.contains("category-title")){
+      if(next.classList.contains("app-card") && next.style.display !== "none") ok = true;
+      next = next.nextElementSibling;
+    }
+    cat.style.display = ok ? "flex" : "none";
+  });
+
+  computeCounts();
+  selectedCardIndex = -1;
+  $$(".app-card").forEach(c => c.classList.remove("keyboard-selected"));
+}
+
+// Helper pentru rebuild cu favorites first
+function rebuildWithFavorites(){
+  const grid = $("#grid");
+  let html = "";
+  
+  // Favorites section (if any)
+  if(favorites.length > 0){
+    html += `
+      <div class="category-title" data-cat="favorites">
+        <span>⭐ Favorites</span>
+        <span class="mini">quick access</span>
+      </div>
+    `;
+    
+    favorites.forEach(appKey => {
+      const app = APPS_DATA.find(a => a.app === appKey);
+      if(app){
+        html += buildCardHTML(app, 0);
+      }
+    });
+  }
+  
+  // Regular categories (exclude favorites)
+  let currentCat = "";
+  APPS_DATA.forEach((app, idx) => {
+    if(favorites.includes(app.app)) return; // Skip favorites
+    
+    if(app.cat !== currentCat){
+      currentCat = app.cat;
+      const catInfo = CATEGORY_TITLES[app.cat];
+      if(catInfo){
+        html += `
+          <div class="category-title" data-cat="${app.cat}">
+            <span>${catInfo.icon} ${catInfo.name}</span>
+            <span class="mini">${catInfo.sub}</span>
+          </div>
+        `;
+      }
+    }
+    
+    html += buildCardHTML(app, idx);
+  });
+  
+  grid.innerHTML = html;
+  setupCardHandlers();
+  updateFavoriteStars();
+  updateCategoryCollapse();
+}
+
+// Helper pentru a genera HTML-ul unui card
+function buildCardHTML(app, idx){
+  const badgeClass = app.badgeGold ? "badge gold" : "badge";
+  const urlAttr = app.url ? `data-url="${app.url}"` : "";
+const isWeb = (app.badge || "").toUpperCase() === "WEB";
+const showStatusDot = !isWeb;     // vrei punct și pe /local/
+const canKill = !app.url;         // kill doar la cele fără url
+
+  const stopTitle = canKill ? "Închide aplicația" : "Nu pot închide (doar web) – ascunde cardul";
+  const stopIcon  = canKill ? "🛑" : "✖";
+  const stopCls   = canKill ? "stop-btn kill" : "stop-btn hide";
+  
+  return `
+    <div class="app-card" data-cat="${app.cat}" data-app="${app.app}" ${urlAttr}
+         data-tags="${app.tags}" style="animation-delay:${idx * 0.035}s;">
+      <div class="app-top">
+        <div class="app-icon">${app.icon}</div>
+        <div class="${badgeClass}">${app.badge}</div>
+      </div>
+      <button class="${stopCls}" title="${stopTitle}">${stopIcon}</button>
+     <div class="app-name">${app.name} ${showStatusDot ? '<span class="status-indicator"></span>' : ''}</div>
+
+      <div class="app-desc">${app.desc}</div>
+    </div>
+  `;
+}
+
+
+// ✅ ADAUGĂ AICI:
+function firstVisibleCard(){
+  return $$(".app-card").find(c => c.style.display !== "none") || null;
+}
+
+
+
+// =========================
+// SERVER STATUS DOT
+// =========================
+function setServerStatus(ok){
+  SERVER_ONLINE = !!ok;
+
+  const dot = $("#serverDot");
+  const txt = $("#serverText");
+
+  if(ok){
+    dot?.classList.add("ok");
+    if(txt) txt.textContent = "ONLINE ✅";
+  }else{
+    dot?.classList.remove("ok");
+    if(txt) txt.textContent = "OFFLINE ❌";
+  }
+}
+
+async function apiGetJson(endpoint){
+  const base = SERVER.replace(/\/$/, "");
+  const url = base + endpoint;
+
+  const timeoutMs = endpoint.startsWith("/kill") ? 10000 : 2500;
+
+  try{
+    const ctrl = new AbortController();
+    const t = setTimeout(()=>ctrl.abort(), timeoutMs);
+
+    const res = await fetch(url, { cache:"no-store", method:"GET", signal: ctrl.signal });
+    clearTimeout(t);
+
+    const text = await res.text();            // <-- citește întâi text
+    let data = {};
+    try{ data = text ? JSON.parse(text) : {}; }catch{ data = { raw:text }; }
+
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    setServerStatus(true);
+    return { ok: true, data };
+  }catch(err){
+    setServerStatus(false);
+    return { ok: false, error: err };
+  }
+}
+
+
+async function pingServerOnce(){
+  const endpoints = ["/ping", "/health", "/"];
+  for(const ep of endpoints){
+    try{
+      const ctrl = new AbortController();
+      const t = setTimeout(()=>ctrl.abort(), 2000);
+      const res = await fetch(SERVER + ep, {cache:"no-store", method:"GET", signal: ctrl.signal});
+      clearTimeout(t);
+      if(res && (res.ok || res.type === "opaque")){
+        setServerStatus(true);
+        return true;
+      }
+    }catch{}
+  }
+  setServerStatus(false);
+  return false;
+}
+
+async function checkServerHealth(){
+  const status = $("#serverStatus");
+  const endpoints = ["/ping", "/health", "/"];
+  for(const ep of endpoints){
+    try{
+      const ctrl = new AbortController();
+      const t = setTimeout(()=>ctrl.abort(), 2000);
+      const res = await fetch(SERVER + ep, {cache:"no-store", method:"GET", signal: ctrl.signal});
+      clearTimeout(t);
+      if(res && (res.ok || res.type === "opaque")){
+        if(status){
+          status.textContent = "🟢 Online";
+          status.style.color = "var(--ok)";
+        }
+        setServerStatus(true);
+        return true;
+      }
+    }catch{}
+  }
+  if(status){
+    status.textContent = "🔴 Offline";
+    status.style.color = "var(--bad)";
+  }
+  setServerStatus(false);
+  return false;
+}
+
+function startPingLoop(){
+  pingServerOnce();
+  setInterval(pingServerOnce, 30000);
+  setInterval(checkServerHealth, 30000);
+}
+
+// =========================
+// STATUS / KILL
+// =========================
+async function checkAppStatus(appKey){
+  debugPush(`GET /status?app=${appKey}`);
+
+  try{
+    const response = await fetch(`${SERVER}/status?app=${encodeURIComponent(appKey)}`, {cache:"no-store", method:"GET"});
+    if(!response.ok) return {ok:false, running:false};
+    const data = await response.json();
+    return {
+      ok: data.ok ?? true,
+      running: !!data.running,
+      app: data.app ?? appKey,
+      process: data.process ?? ""
+    };
+  }catch(e){
+    console.error("status failed:", appKey, e);
+    return {ok:false, running:false};
+  }
+}
+
+async function updateCardStatus(appKey, cardElement){
+  if(!cardElement) return;                 // ✅ guard
+  const data = await checkAppStatus(appKey);
+  if(data.running) cardElement.classList.add("running");
+  else cardElement.classList.remove("running");
+}
+
+
+async function updateAllStatuses(){
+  const cards = $$(".app-card")
+    .filter(c => c.style.display !== "none")
+    .filter(c => !c.getAttribute("data-url")); // doar local apps
+
+  for(const card of cards){
+    const appKey = card.getAttribute("data-app");
+    if(appKey) await updateCardStatus(appKey, card);
+  }
+}
+
+async function updateAllStatuses(){
+  const cards = $$(".app-card")
+    .filter(c => c.style.display !== "none")
+    .filter(c => !c.getAttribute("data-url"));
+
+  const BATCH = 8;
+  for(let i=0;i<cards.length;i+=BATCH){
+    const batch = cards.slice(i, i+BATCH);
+    await Promise.all(batch.map(card=>{
+      const appKey = card.getAttribute("data-app");
+      return appKey ? updateCardStatus(appKey, card) : Promise.resolve();
+    }));
+  }
+}
+
+async function killApp(appKey, cardElement){
+  if(!cardElement){
+    cardElement = document.querySelector(`.app-card[data-app="${CSS.escape(appKey)}"]`);
+  }
+
+  const r = await apiGetJson(`/kill?app=${encodeURIComponent(appKey)}`);
+
+  if(!r.ok){
+    toast(`❌ Server timeout / offline la KILL (${appKey})`, "error");
+    playSound("error");
+    return;
+  }
+
+  const data = r.data || {};
+  const displayName = cardElement?.querySelector(".app-name")?.textContent?.trim() || appKey;
+  if(data.ok){
+    toast(`🛑 ${displayName} închis`, "ok");
+    playSound("success");
+    if(cardElement) await updateCardStatus(appKey, cardElement);
+  }else{
+    const errMsg = (data.error || "").includes("access is denied") ? "Acces refuzat — rulează ca Admin" :
+                   (data.error || "").includes("not running")      ? "Nu rulează" :
+                   (data.error || "Nu s-a putut închide");
+    toast(`❌ ${displayName}: ${errMsg}`, "error");
+    playSound("error");
+  }
+}
+
+
+
+async function apiGetJson(endpoint){
+  const base = SERVER.replace(/\/$/, "");
+  const url = base + endpoint;
+
+  const timeoutMs = endpoint.startsWith("/kill") ? 4000 : 2000;
+
+  try{
+    const ctrl = new AbortController();
+    const t = setTimeout(()=>ctrl.abort(), timeoutMs);
+
+    const res = await fetch(url, { cache:"no-store", method:"GET", signal: ctrl.signal });
+    clearTimeout(t);
+
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const data = await res.json().catch(()=> ({}));
+    setServerStatus(true);
+    return { ok: true, data };
+  }catch(err){
+    setServerStatus(false);
+    return { ok: false, error: err };
+  }
+}
+
+
+async function killVisibleApps(){
+  const keys = getLocalKeys({ protectBrowsers: true });
+  if(keys.length === 0){
+    toast("🤷 Nicio aplicație vizibilă de închis", "warn");
+    playSound("error");
+    return;
+  }
+  
+  const ok = confirm(`Închid ${keys.length} aplicații vizibile?\n(browserele sunt protejate)`);
+  if(!ok) return;
+
+  toast(`🔄 Închid ${keys.length} aplicații...`, "ok");
+  
+  for(const k of keys){
+    const card = $(`.app-card[data-app="${k}"]`);
+    if(card) await killApp(k, card);
+  }
+  
+  toast(`✅ Gata! ${keys.length} aplicații închise`, "ok");
+  playSound("success");
+}
+
+function setupStopButtons(){
+  console.log("🔗 Setting up stop buttons...");
+  
+  // Kill buttons (pentru local apps)
+  const killBtns = $$(".stop-btn.kill");
+  console.log(`Found ${killBtns.length} kill buttons`);
+  
+  killBtns.forEach((btn, idx)=>{
+    btn.addEventListener("click", async (e)=>{
+      console.log(`🛑 STOP BUTTON CLICKED! (${idx})`);
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation(); // ✅ EXTRA PROTECTION
+      
+      const card = btn.closest(".app-card");
+      const appKey = card?.getAttribute("data-app");
+      console.log(`Killing app: ${appKey}`);
+      
+      if(appKey) await killApp(appKey, card);
+    }, true); // ✅ Use capture phase
+  });
+
+  // Hide buttons (pentru web apps)
+  const hideBtns = $$(".stop-btn.hide");
+  console.log(`Found ${hideBtns.length} hide buttons`);
+  
+  hideBtns.forEach(btn=>{
+    btn.addEventListener("click", (e)=>{
+      console.log("✖ HIDE BUTTON CLICKED!");
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      
+      const card = btn.closest(".app-card");
+      const name = card?.querySelector(".app-name")?.textContent?.trim() || "app";
+      if(card) card.style.display = "none";
+      computeCounts();
+      toast(`✖ Ascuns: ${name}`, "warn");
+      playSound("click");
+    }, true); // ✅ Use capture phase
+  });
+  
+  console.log("✅ Stop buttons configured!");
+}
+function startStatusMonitoring(){
+  updateAllStatuses();
+  setInterval(updateAllStatuses, 5000);
+}
+
+
+
+
+
+
+
+function forceStopButtonListeners(){
+  console.log("🔧 Force attaching stop button listeners...");
+  
+  // Găsește TOATE butoanele cu emoji 🛑 sau ✖
+  document.querySelectorAll(".stop-btn, button[title*='Închide'], button[title*='ascunde']").forEach((btn, idx) => {
+    console.log(`Attaching to button ${idx}:`, btn.textContent, btn.className);
+    
+    // Remove old listeners (dacă există)
+    const newBtn = btn.cloneNode(true);
+    btn.parentNode.replaceChild(newBtn, btn);
+    
+    // Attach new listener
+    newBtn.addEventListener("click", async (e) => {
+      console.log("🛑 FORCE STOP CLICKED!");
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      
+      const card = newBtn.closest(".app-card");
+      const appKey = card?.getAttribute("data-app");
+      const isKill = newBtn.classList.contains("kill") || newBtn.textContent.includes("🛑");
+      
+      if(isKill && appKey){
+        console.log(`Killing: ${appKey}`);
+        await killApp(appKey, card);
+      }else{
+        console.log("Hiding card");
+        const name = card?.querySelector(".app-name")?.textContent?.trim() || "app";
+        if(card) card.style.display = "none";
+        toast(`✖ Ascuns: ${name}`, "warn");
+        playSound("click");
+      }
+    }, true);
+  });
+  
+  console.log("✅ Force attach complete!");
+}
+
+
+
+
+// =========================
+// LAUNCH
+// =========================
+async function launchCard(card){
+  const appKey = card.getAttribute("data-app");
+  const url = card.getAttribute("data-url");
+  const name = $(".app-name", card)?.textContent || appKey || "app";
+
+  const lastLaunch = launchCooldowns.get(appKey);
+  if(lastLaunch && (Date.now() - lastLaunch < COOLDOWN_MS)){
+    toast("⏱️ Așteaptă puțin...", "warn");
+    playSound("error");
+    return;
+  }
+  launchCooldowns.set(appKey, Date.now());
+
+  playSound("click");
+  card.classList.add("launching","loading");
+  setTimeout(()=>card.classList.remove("launching","loading"), 650);
+
+  // URL /local / https -> open absolute
+  if(url){
+    window.open(toAbsoluteUrl(url), "_blank", "noopener,noreferrer");
+    playSound("success");
+    toast("✨ Deschis: " + name, "ok");
+    setLastLaunch(name + " @ " + nowClock());
+    return;
+  }
+
+  // local app via server
+  if(!isServerOnline()){
+    const ok = await pingServerOnce();
+    if(!ok){
+      playSound("error");
+      toast("⚠️ Server OFFLINE — Pornește server-ul!", "error");
+      card.classList.remove("loading");
+      return;
+    }
+  }
+
+  try{
+    const res = await fetch(`${SERVER}/launch?app=${encodeURIComponent(appKey)}`, {cache:"no-store", method:"GET"});
+    let data = {};
+    try{ data = await res.json(); }catch{}
+    if(!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+    playSound("success");
+    toast("🚀 Lansare: " + name, "ok");
+    setLastLaunch(name + " @ " + nowClock());
+    setTimeout(()=>updateCardStatus(appKey, card), 2500);
+  }catch(err){
+    playSound("error");
+    toast("❌ Launch failed: " + (err?.message || "unknown"), "error");
+  }
+}
+
+function setupCardHandlers(){
+  console.log("🔗 Setting up card handlers...");
+  
+  $$(".app-card").forEach(card=>{
+    card.addEventListener("click", (e)=>{
+      // Dacă click-ul a venit de la un button sau element cu class specială, ignoră
+      const target = e.target;
+      const isButton = target.tagName === 'BUTTON';
+      const hasSpecialClass = target.classList.contains("stop-btn") || 
+                              target.classList.contains("favorite-star") ||
+                              target.classList.contains("collapse-btn");
+      
+      if(isButton || hasSpecialClass){
+        console.log("❌ Click pe element special, nu lansez");
+        return;
+      }
+      
+      console.log("✅ Click pe card, lansez aplicația");
+      launchCard(card);
+    });
+  });
+  
+  updateFavoriteStars();
+  updateCategoryCollapse();
+  
+  console.log("✅ Card handlers configured!");
+}
+// =========================
+// FAVORITES SYSTEM
+// =========================
+function toggleFavorite(appKey){
+  if(favorites.includes(appKey)){
+    favorites = favorites.filter(k => k !== appKey);
+    toast(`💔 Removed: ${appKey}`, "warn");
+    playSound("click");
+  }else{
+    favorites.push(appKey);
+    toast(`⭐ Added: ${appKey}`, "ok");
+    playSound("success");
+  }
+  localStorage.setItem("favorites", JSON.stringify(favorites));
+  updateFavoriteStars();
+}
+
+function updateFavoriteStars(){
+  $$(".app-card").forEach(card => {
+    const appKey = card.getAttribute("data-app");
+    const isFav = favorites.includes(appKey);
+    
+    let star = card.querySelector(".favorite-star");
+    if(!star){
+      star = document.createElement("button");
+      star.className = "favorite-star";
+      star.title = "Toggle favorite (F)";
+      card.querySelector(".app-top").appendChild(star);
+      
+      star.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleFavorite(appKey);
+      });
+    }
+    
+    star.textContent = isFav ? "⭐" : "☆";
+    star.style.opacity = isFav ? "1" : "0.4";
+  });
+}
+
+
+
+// =========================
+// CATEGORY COLLAPSE SYSTEM
+// =========================
+function toggleCategory(catKey){
+  if(collapsedCategories.includes(catKey)){
+    collapsedCategories = collapsedCategories.filter(k => k !== catKey);
+    toast(`📂 Expanded: ${CATEGORY_TITLES[catKey]?.name || catKey}`, "ok");
+  }else{
+    collapsedCategories.push(catKey);
+    toast(`📁 Collapsed: ${CATEGORY_TITLES[catKey]?.name || catKey}`, "warn");
+  }
+  localStorage.setItem("collapsedCategories", JSON.stringify(collapsedCategories));
+  updateCategoryCollapse();
+  playSound("click");
+}
+
+function updateCategoryCollapse(){
+  $$(".category-title").forEach(catTitle => {
+    const catKey = catTitle.getAttribute("data-cat");
+    const isCollapsed = collapsedCategories.includes(catKey);
+    
+    // Update collapse button icon
+    let collapseBtn = catTitle.querySelector(".collapse-btn");
+    if(!collapseBtn){
+      collapseBtn = document.createElement("button");
+      collapseBtn.className = "collapse-btn";
+      collapseBtn.title = "Toggle collapse (C)";
+      catTitle.insertBefore(collapseBtn, catTitle.firstChild);
+      
+      collapseBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleCategory(catKey);
+      });
+    }
+    
+    collapseBtn.textContent = isCollapsed ? "▶" : "▼";
+    catTitle.classList.toggle("collapsed", isCollapsed);
+    
+    // Hide/show cards in this category
+    let next = catTitle.nextElementSibling;
+    while(next && !next.classList.contains("category-title")){
+      if(next.classList.contains("app-card")){
+        if(isCollapsed){
+          next.style.display = "none";
+          next.setAttribute("data-collapsed", "true");
+        }else{
+          // Only show if not filtered out
+          const searchQuery = searchInput?.value || "";
+          if(!searchQuery){
+            next.style.display = "block";
+            next.removeAttribute("data-collapsed");
+          }else{
+            // Re-apply filter
+            const hay = normalize(next.textContent + " " + (next.getAttribute("data-tags")||""));
+            const q = normalize(searchQuery);
+            next.style.display = hay.includes(q) ? "block" : "none";
+            next.removeAttribute("data-collapsed");
+          }
+        }
+      }
+      next = next.nextElementSibling;
+    }
+  });
+  
+  computeCounts();
+}
+
+function getVisibleCategory(){
+  // Get category of currently selected card
+  if(selectedCardIndex >= 0){
+    const cards = $$(".app-card").filter(c => c.style.display !== "none");
+    const card = cards[selectedCardIndex];
+    if(card){
+      return card.getAttribute("data-cat");
+    }
+  }
+  
+  // Get first visible category
+  const cats = $$(".category-title").filter(c => c.style.display !== "none");
+  if(cats.length > 0){
+    return cats[0].getAttribute("data-cat");
+  }
+  
+  return null;
+}
+
+
+
+
+
+
+
+// =========================
+// BUILD HTML
+// =========================
+function buildAppsHTML(){
+  const grid = $("#grid");
+  if(!grid) return;
+  
+  let html = "";
+  let currentCat = "";
+
+  APPS_DATA.forEach((app, idx)=>{
+    // ✅ VERIFICĂ ACEASTĂ PARTE - Trebuie să existe!
+    if(app.cat !== currentCat){
+      currentCat = app.cat;
+      const catInfo = CATEGORY_TITLES[app.cat];
+      if(catInfo){
+        html += `
+          <div class="category-title" data-cat="${app.cat}">
+            <span>${catInfo.icon} ${catInfo.name}</span>
+            <span class="mini">${catInfo.sub}</span>
+          </div>
+        `;
+      }
+    }
+
+    const badgeClass = app.badgeGold ? "badge gold" : "badge";
+    const urlAttr = app.url ? `data-url="${app.url}"` : "";
+  const isWeb = (app.badge || "").toUpperCase() === "WEB";
+const showStatusDot = !isWeb;     // vrei punct și pe /local/
+const canKill = !app.url;         // kill doar la cele fără url
+
+
+    const stopTitle = canKill ? "Închide aplicația" : "Nu pot închide (doar web) – ascunde cardul";
+    const stopIcon  = canKill ? "🛑" : "✖";
+    const stopCls   = canKill ? "stop-btn kill" : "stop-btn hide";
+
+    html += `
+      <div class="app-card" data-cat="${app.cat}" data-app="${app.app}" ${urlAttr}
+           data-tags="${app.tags}" style="animation-delay:${idx * 0.035}s;">
+        <div class="app-top">
+          <div class="app-icon">${app.icon}</div>
+          <div class="${badgeClass}">${app.badge}</div>
+        </div>
+
+        <button class="${stopCls}" title="${stopTitle}">${stopIcon}</button>
+
+        <div class="app-name">${app.name} ${canKill ? '<span class="status-indicator"></span>' : ''}</div>
+        <div class="app-desc">${app.desc}</div>
+      </div>
+    `;
+  });
+
+  grid.innerHTML = html;
+  
+  // ✅ Acestea trebuie să fie după grid.innerHTML
+  updateCategoryCollapse();
+}
+
+
+
+
+
+
+
+
+
+
+
+// =========================
+// KILL ALL (SAFE / UNSAFE)
+// =========================
+async function killAllApps({ unsafe = false } = {}) {
+  if(!isServerOnline()){
+    toast("⚠️ Server OFFLINE — nu pot KILL", "error");
+    playSound("error");
+    return;
+  }
+
+  const msg = unsafe
+    ? `⚠️ UNSAFE: poate închide și browserul!\nSigur vrei KILL ALL?`
+    : `Sigur vrei să închizi TOATE aplicațiile locale?\nBrowserele sunt PROTEJATE.`;
+
+  const ok = confirm(msg);
+  if(!ok) return;
+
+  // SAFE = nu omorăm browser, deci unsafe=0
+  // UNSAFE = unsafe=1, deci poate omorî și browser
+  const url = `${SERVER}/killall?unsafe=${unsafe ? "1" : "0"}`;
+
+  try{
+    await fetch(url, { method:"GET", cache:"no-store" });
+  }catch(e){
+    toast("❌ Eroare la /killall", "error");
+    return;
+  }
+
+  toast(`🧨 KILL ALL (${unsafe ? "UNSAFE" : "SAFE"}) — trimis`, "ok");
+  playSound("success");
+  setTimeout(()=>updateAllStatuses(), 1200);
+}
+
+// =========================
+// Convenience wrappers
+// =========================
+function killAllSafe(){
+  return killAllApps({ unsafe:false });
+}
+
+function killAllUnsafe(){
+  return killAllApps({ unsafe:true });
+}
+
+// =========================
+// REFRESH
+// =========================
+async function refreshVisibleStatuses(){
+  toast("🔄 Refresh status...", "ok");
+  playSound("click");
+  await updateAllStatuses();
+}
+
+// Optimizare: nu caută la fiecare literă, așteaptă 150ms
+let searchDebounceTimer = null;
+
+function bindSearch(){
+  console.log("🔍 Caut input de search...");
+  
+  searchInput = 
+    document.getElementById("search") ||
+    document.getElementById("searchInput") ||
+    document.querySelector("input[type='search']") ||
+    document.querySelector("input[placeholder*='earch']") ||
+    document.querySelector("header input");
+  
+  if(!searchInput){
+    console.error("❌ NICIUN input găsit!");
+    return false;
+  }
+
+  console.log("✅ Input găsit:", searchInput.id || searchInput.className);
+
+  // ✅ PARTEA NOUĂ CU DEBOUNCE:
+  searchInput.addEventListener("input", () => {
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(() => {
+      try{
+        filter();
+        toastSearch(searchInput.value);
+      }catch(e){
+        console.error("❌ Eroare filter:", e);
+      }
+    }, 150); // Așteaptă 150ms după ultima tastă
+  });
+
+  return true;
+}
+
+// =========================
+// BUTTONS BIND (TOP BAR)
+// =========================
+function bindGlobalButtons(){
+  const refreshBtn = document.getElementById("refreshStatusBtn");
+  const killAllSafeBtn = document.getElementById("btnKillAllSafe") || document.getElementById("killAllBtn");
+  const killAllUnsafeBtn = document.getElementById("btnKillAllUnsafe");
+  const killVisBtn = document.getElementById("btnKillVisible") || document.getElementById("killVisibleBtn");
+
+  if(refreshBtn){
+    refreshBtn.addEventListener("click", (e)=>{
+      e.preventDefault();
+      refreshVisibleStatuses();
+    });
+  }
+
+  // SAFE (default)
+  if(killAllSafeBtn){
+    killAllSafeBtn.addEventListener("click", (e)=>{
+      e.preventDefault();
+      killAllApps({ unsafe:false }); // SAFE
+    });
+  }
+
+  // UNSAFE (închide și browser)
+  if(killAllUnsafeBtn){
+    killAllUnsafeBtn.addEventListener("click", (e)=>{
+      e.preventDefault();
+      killAllApps({ unsafe:true }); // UNSAFE
+    });
+  }
+
+  if(killVisBtn){
+    killVisBtn.addEventListener("click", (e)=>{
+      e.preventDefault();
+      killVisibleApps();
+    });
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+// =========================
+// KEYBOARD NAVIGATION HELPER
+// =========================
+function highlightCard(index){
+  const cards = $$(".app-card").filter(c => c.style.display !== "none");
+  
+  // Remove old highlight
+  $$(".app-card").forEach(c => c.classList.remove("keyboard-selected"));
+  
+  if(index >= 0 && index < cards.length){
+    cards[index].classList.add("keyboard-selected");
+    cards[index].scrollIntoView({ behavior: "smooth", block: "center" });
+    selectedCardIndex = index;
+  }
+}
+
+// =========================
+// GLOBAL KEYDOWN
+// =========================
+const isTypingTarget = (el) => {
+  if(!el) return false;
+  const tag = (el.tagName || "").toLowerCase();
+  return tag === "input" || tag === "textarea" || tag === "select" || !!el.isContentEditable;
+};
+
+document.addEventListener("keydown", (e)=>{
+  const active = document.activeElement;
+
+  // Arrow Down - navighează jos
+  if(e.key === "ArrowDown" && !isTypingTarget(active)){
+    e.preventDefault();
+    const cards = $$(".app-card").filter(c => c.style.display !== "none");
+    if(cards.length === 0) return;
+    selectedCardIndex = (selectedCardIndex + 1) % cards.length;
+    highlightCard(selectedCardIndex);
+    playSound("click");
+    return;
+  }
+
+  // Arrow Up - navighează sus
+  if(e.key === "ArrowUp" && !isTypingTarget(active)){
+    e.preventDefault();
+    const cards = $$(".app-card").filter(c => c.style.display !== "none");
+    if(cards.length === 0) return;
+    selectedCardIndex = (selectedCardIndex - 1 + cards.length) % cards.length;
+    highlightCard(selectedCardIndex);
+    playSound("click");
+    return;
+  }
+
+
+// ✅ ADAUGĂ AICI - Toggle favorite pe cardul selectat
+if(e.key === "f" || e.key === "F"){
+  if(!isTypingTarget(active) && selectedCardIndex >= 0){
+    e.preventDefault();
+    const cards = $$(".app-card").filter(c => c.style.display !== "none");
+    const card = cards[selectedCardIndex];
+    if(card){
+      const appKey = card.getAttribute("data-app");
+      toggleFavorite(appKey);
+    }
+    return;
+  }
+}
+
+// ✅ ADAUGĂ AICI - Toggle collapse pe categorie
+if(e.key === "c" || e.key === "C"){
+  if(!isTypingTarget(active)){
+    e.preventDefault();
+    const catKey = getVisibleCategory();
+    if(catKey){
+      toggleCategory(catKey);
+    }else{
+      toast("❌ Nicio categorie vizibilă", "warn");
+    }
+    return;
+  }
+}
+
+
+  // Debug
+  if(e.key === "d" || e.key === "D"){
+    if(!isTypingTarget(active)){
+      toggleDebug();
+      return;
+    }
+  }
+
+  // dacă nu există searchInput, nu încercăm focus/typing
+  if(!searchInput){
+    return;
+  }
+
+  // Focus search cu /
+  if(e.key === "/" && active !== searchInput){
+    e.preventDefault();
+    searchInput.focus();
+    playSound("click");
+    return;
+  }
+
+  // "type anywhere"
+  if(!isTypingTarget(active) && !e.ctrlKey && !e.metaKey && !e.altKey){
+  const k = e.key;
+  const blocked = new Set(["/", "v","V","e","E","m","M","r","R","k","K","d","D","f","F","c","C","ArrowUp","ArrowDown"]);
+    if(k === "Backspace"){
+      const val = searchInput.value || "";
+      if(val.length > 0){
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.value = val.slice(0, -1);
+        filter();
+        toastSearch(searchInput.value);
+        playSound("click");
+      }
+      return;
+    }
+
+    if(k && k.length === 1 && !blocked.has(k)){
+      e.preventDefault();
+      searchInput.focus();
+      searchInput.value = (searchInput.value || "") + k;
+      filter();
+      toastSearch(searchInput.value);
+      playSound("click");
+      return;
+    }
+  }
+
+  // Escape clear
+  if(e.key === "Escape"){
+    if(searchInput){
+      searchInput.value = "";
+      filter();
+      searchInput.blur();
+      toast("🧼 Clear", "warn");
+      selectedCardIndex = -1;
+      $$(".app-card").forEach(c => c.classList.remove("keyboard-selected"));
+    }
+    return;
+  }
+
+  // Enter launch
+  if(e.key === "Enter"){
+    // Dacă ai selectat un card cu săgețile
+    if(selectedCardIndex >= 0 && active !== searchInput){
+      const cards = $$(".app-card").filter(c => c.style.display !== "none");
+      if(cards[selectedCardIndex]){
+        launchCard(cards[selectedCardIndex]);
+      }
+      return;
+    }
+    
+    // Dacă ești în search
+    if(active === searchInput){
+      const c = firstVisibleCard();
+      if(c) launchCard(c);
+      else { playSound("error"); toast("🙈 Nicio aplicație găsită", "error"); }
+      return;
+    }
+  }
+
+  // R refresh
+  if(e.key === "r" || e.key === "R"){
+    if(!isTypingTarget(active)){
+      refreshVisibleStatuses();
+    }
+    return;
+  }
+
+  // K killall SAFE
+  if(e.key === "k" || e.key === "K"){
+    if(!isTypingTarget(active)){
+      killAllApps({ unsafe:false });
+    }
+    return;
+  }
+
+  // M mute toggle
+  if(e.key === "m" || e.key === "M"){ 
+    if(!isTypingTarget(active)){
+      soundEnabled = !soundEnabled;
+      updateSoundIcon();
+      savePrefs();
+      toast(soundEnabled ? "🔊 Sound ON" : "🔇 Sound OFF", "ok");
+    }
+    return; 
+  }
+  
+  // V view toggle
+  if(e.key === "v" || e.key === "V"){ 
+    if(!isTypingTarget(active)){
+      toggleViewMode(); 
+    }
+    return; 
+  }
+  
+  // E effects toggle
+  if(e.key === "e" || e.key === "E"){ 
+    if(!isTypingTarget(active)){
+      toggleEffects(); 
+    }
+    return; 
+  }
+}, true);
+
+
+
+
+// =========================
+// TOP CONTROLS BIND
+// =========================
+function bindTopControls(){
+  console.log("🔗 Binding top controls...");
+
+  // 1. Sound Toggle Button
+  const soundToggle = document.getElementById("soundToggle");
+  if(soundToggle){
+    soundToggle.addEventListener("click", (e) => {
+      e.preventDefault();
+      soundEnabled = !soundEnabled;
+      updateSoundIcon();
+      savePrefs();
+      toast(soundEnabled ? "🔊 Sound ON" : "🔇 Sound OFF", "ok");
+      if(soundEnabled) playSound("success");
+    });
+  }
+
+  // 2. Sound Selector Dropdown
+  const soundSelector = document.getElementById("soundSelector");
+  if(soundSelector){
+    soundSelector.addEventListener("change", (e) => {
+      currentSound = e.target.value;
+      savePrefs();
+      toast(`🎵 Sound: ${e.target.options[e.target.selectedIndex].text}`, "ok");
+      playSound("click");
+    });
+  }
+
+  // 3. View Toggle Button (Grid/List)
+  const viewToggle = document.getElementById("viewToggle");
+  if(viewToggle){
+    viewToggle.addEventListener("click", (e) => {
+      e.preventDefault();
+      toggleViewMode();
+    });
+  }
+
+  // 4. Effects Toggle Button
+  const effectsToggle = document.getElementById("effectsToggle");
+  if(effectsToggle){
+    effectsToggle.addEventListener("click", (e) => {
+      e.preventDefault();
+      toggleEffects();
+    });
+  }
+
+  // 5. Refresh Status Button
+  const refreshBtn = document.getElementById("refreshStatusBtn");
+  if(refreshBtn){
+    refreshBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      refreshVisibleStatuses();
+    });
+  }
+
+  console.log("✅ Top controls bound:", {
+    soundToggle: !!soundToggle,
+    soundSelector: !!soundSelector,
+    viewToggle: !!viewToggle,
+    effectsToggle: !!effectsToggle,
+    refreshBtn: !!refreshBtn
+  });
+}
+
+
+
+// Găsește butonul și atașează manual
+const stopBtn = $$(".stop-btn")[0];
+if(stopBtn){
+  stopBtn.addEventListener("click", (e) => {
+    console.log("✅ MANUAL TEST CLICKED!");
+    e.stopPropagation();
+    alert("Stop button works!");
+  }, true);
+  
+  console.log("Now click the red button!");
+}
+
+// =========================
+// STOP BUTTONS - GLOBAL DELEGATION (FIX)
+// =========================
+(function bindStopButtonsDelegatedOnce(){
+  if (window.__stopBtnsBound) return; // evită dublarea
+  window.__stopBtnsBound = true;
+
+  document.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".stop-btn");
+    if (!btn) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const card = btn.closest(".app-card");
+    const app = card?.dataset?.app || "";
+    const url = card?.dataset?.url || "";
+
+    console.log("[STOP BTN]", btn.className, btn.textContent.trim(), "app=", app);
+
+    try {
+      // dacă ai funcții existente, apelează-le direct:
+     if (btn.classList.contains("kill")) {
+  if (typeof killApp === "function") return killApp(app, card);
+
+
+
+        // fallback generic (dacă ai endpoint)
+        return fetch(`/kill?app=${encodeURIComponent(app)}`).catch(()=>{});
+      }
+
+      if (btn.classList.contains("hide")) {
+        // exemplu: hide app (tu adaptezi)
+        if (typeof hideApp === "function") return hideApp(app);
+
+        // fallback: doar ascunde card-ul vizual
+        if (card) card.style.display = "none";
+        return;
+      }
+    } catch (err) {
+      console.error("STOP BTN handler error:", err);
+    }
+  }, true); // true = capture (prinde mai sigur)
+})();
+
+
+// =========================
+// INIT - VERSIUNE FINALĂ
+// =========================
+function init(){
+  console.log("🚀 Inițializare...");
+  
+  buildAppsHTML();
+  setupStopButtons();    // ✅ PRIMUL - înainte de setupCardHandlers!
+  forceStopButtonListeners(); // ✅ ADAUGĂ AICI
+  setupCardHandlers();   // ✅ AL DOILEA
+
+
+  console.log("✅ Event listeners rebuilt!");
+  const searchOK = bindSearch();
+  bindGlobalButtons();
+  bindTopControls(); // ✅ ACUM VA MERGE!
+  
+  loadPrefs();
+  if(effectsEnabled){ 
+    createParticles(); 
+    createStars(); 
+  }
+  
+  filter();
+  startPingLoop();
+  checkServerHealth();
+  startStatusMonitoring();
+  setLastLaunch("—");
+  
+  if(searchInput){
+    setTimeout(()=>searchInput.focus(), 100);
+  }
+  
+  const msg = searchOK 
+    ? "✨ Ready! Type to search • / focus • ↑↓ navigate • F favorite • C collapse • V view • E effects • M mute • R refresh • K killall"
+    : "✨ Ready! (search disabled)";
+  toast(msg, "ok");
+  
+  console.log("✅ Init complet!");
+}
+
+
+
+// ❗ ACEASTA LINIA LIPSEA - ADAUGĂ-O:
+document.addEventListener("DOMContentLoaded", init);
+
+</script>
+
+

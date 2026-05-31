@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*.log
+*.json
+!task_config.xml
+*conflicted*
+server_log.txt
+F2_STDOUT.log
+F2_STDERR.log
+F2_ERRORS.log
+hotkey_stats*.json
+detected_paths*.json
+.env
+.venv/
+venv/

@@ -1,0 +1,4294 @@
+
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.4, maximum-scale=0.4, minimum-scale=0.4, user-scalable=no">
+      <title>🚀 HERCULES MATUSALEM - Command Center</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Launcher">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10b981;
+            --secondary: #059669;
+            --accent: #ffaa00;
+            --bg-dark: #1a2332;
+            --bg-card: #2d3e56;
+            --text: #ffffff;
+            --text-dim: #cbd5e1;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        /* ENHANCED CLOCK DISPLAY STYLES - FULL WIDTH */
+        .enhanced-clock-container {
+            background: rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 8px 25px;
+            margin: 0;
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+            width: 100%;
+            max-width: 100%;
+            height: 150px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .time-date-inline {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .main-time-display {
+            font-size: 2.4em;
+            font-weight: 900;
+            text-align: center;
+            color: #00ffff;
+            text-shadow: 0 0 25px rgba(0, 255, 255, 0.9), 
+                         0 0 50px rgba(0, 255, 255, 0.6),
+                         0 3px 10px rgba(0, 0, 0, 0.8),
+                         0 0 5px rgba(0, 0, 0, 1);
+            margin-bottom: 0;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.12em;
+            line-height: 1;
+        }
+
+        .full-date-display {
+            text-align: center;
+            font-size: 0.9em;
+            color: #ffffff;
+            margin-bottom: 0;
+            font-weight: 700;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9),
+                         0 0 5px rgba(0, 0, 0, 1);
+            line-height: 1.2;
+        }
+
+        .date-details-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            margin-top: 3px;
+            justify-items: stretch;
+        }
+
+        .date-detail-item {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            font-size: 0.9em;
+        }
+
+        .date-detail-item:hover {
+            background: rgba(255, 255, 255, 0.22);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .date-detail-label {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+            flex: 1;
+        }
+        
+        .detail-emoji {
+            font-size: 2.5em;
+            line-height: 1;
+            filter: drop-shadow(0 0 8px rgba(0, 0, 0, 1)) 
+                    drop-shadow(0 0 15px rgba(255, 255, 255, 0.5))
+                    drop-shadow(0 3px 8px rgba(0, 0, 0, 1));
+            flex-shrink: 0;
+        }
+        
+        .detail-text {
+            font-size: 0.65em;
+            line-height: 1.2;
+            text-align: left;
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: uppercase;
+            font-weight: 700;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+        }
+
+        .date-detail-value {
+            font-size: 1.4em;
+            color: #00ffff;
+            font-weight: 900;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.8),
+                         0 2px 5px rgba(0, 0, 0, 0.8),
+                         0 0 5px rgba(0, 0, 0, 1);
+            text-align: left;
+        }
+
+        /* WEATHER BADGE - EXTREME COMPACT FOR 5% COLUMN */
+        .badge-weather .weather-stack {
+            display: flex;
+            flex-direction: column;
+            line-height: 1;
+            align-items: center;
+            gap: 1px;
+            width: 100%;
+        }
+
+        .badge-weather .weather-main {
+            font-size: 0.9em;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.9),
+                         0 0 10px rgba(0, 0, 0, 0.7),
+                         0 0 3px rgba(0, 0, 0, 1);
+            text-align: center;
+        }
+
+        .badge-weather .weather-loc-mini {
+            font-size: 0.65em;
+            font-weight: 700;
+            opacity: 0.98;
+            max-width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #ffffff;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9),
+                         0 0 3px rgba(0, 0, 0, 1);
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .badge-weather .weather-main { font-size: 0.85em; }
+            .badge-weather .weather-loc-mini { font-size: 0.6em; }
+        }
+
+        /* THREE COLUMN HEADER LAYOUT - 5% 90% 5% EXTREME PROPORTIONS */
+        .header-three-columns {
+            display: grid;
+            grid-template-columns: 5% 90% 5%;
+            align-items: center;
+            gap: 5px;
+            position: relative;
+            z-index: 1;
+            margin-top: 10px;
+            max-width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 2px;
+        }
+
+        .header-left {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+        }
+
+        .header-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .header-right {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+        }
+
+        .badge-weather,
+        .badge-server {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 0.85em;
+            width: 100%;
+            gap: 4px;
+            height: 150px;
+            box-sizing: border-box;
+            justify-content: center;
+        }
+
+        .badge-server div {
+            color: #ffffff;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.9),
+                         0 0 5px rgba(0, 0, 0, 0.7),
+                         0 0 3px rgba(0, 0, 0, 1);
+        }
+
+        .badge-server #serverStatus {
+            font-weight: 800 !important;
+        }
+
+        .badge-weather:hover,
+        .badge-server:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            .header-three-columns {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                padding: 0 10px;
+            }
+            
+            .header-left,
+            .header-right {
+                justify-content: center;
+                padding: 0;
+            }
+            
+            .header-center {
+                order: -1;
+            }
+            
+            .enhanced-clock-container {
+                max-width: 100%;
+            }
+            
+            .time-date-inline {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .main-time-display {
+                font-size: 2em;
+            }
+            
+            .full-date-display {
+                font-size: 0.9em;
+            }
+        }
+
+        /* THEME 1: Purple Dream 💜 */
+        body[data-theme="purple"] {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        }
+        body[data-theme="purple"] .header {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.4) 0%, rgba(118, 75, 162, 0.4) 100%);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        body[data-theme="purple"] .weather-modal-content {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.95) 0%, rgba(139, 92, 246, 0.95) 100%);
+        }
+        body[data-theme="purple"] .clock-modal-content {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.95) 0%, rgba(168, 85, 247, 0.95) 100%);
+        }
+        body[data-theme="purple"] .server-modal-content {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.95) 0%, rgba(6, 182, 212, 0.95) 100%);
+        }
+        body[data-theme="purple"] .modal-content {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.95) 0%, rgba(219, 39, 119, 0.95) 100%);
+        }
+
+        /* THEME 2: Neon Night 💚 */
+        body[data-theme="neon"] {
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+        }
+        body[data-theme="neon"] .header {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.5) 0%, rgba(6, 182, 212, 0.5) 100%);
+            border-color: rgba(16, 185, 129, 0.8);
+        }
+        body[data-theme="neon"] .particle {
+            background: rgba(16, 185, 129, 1);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.8);
+        }
+        body[data-theme="neon"] .subtitle .badge {
+            background: rgba(16, 185, 129, 0.3);
+            border-color: rgba(16, 185, 129, 0.8);
+        }
+        body[data-theme="neon"] .subtitle .badge:hover {
+            background: rgba(16, 185, 129, 0.5);
+            box-shadow: 0 5px 20px rgba(16, 185, 129, 0.6);
+        }
+        body[data-theme="neon"] .search-box input {
+            border-color: rgba(16, 185, 129, 0.6);
+            background: rgba(16, 185, 129, 0.15);
+        }
+        body[data-theme="neon"] .search-box input:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
+        }
+        body[data-theme="neon"] .search-history {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.5);
+        }
+            background: rgba(16, 185, 129, 0.2);
+            border-color: rgba(16, 185, 129, 0.6);
+        }
+            background: rgba(16, 185, 129, 0.4);
+            box-shadow: 0 5px 20px rgba(16, 185, 129, 0.4);
+        }
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            box-shadow: 0 5px 20px rgba(16, 185, 129, 0.7);
+        }
+        body[data-theme="neon"] .link-card {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: rgba(16, 185, 129, 0.5);
+        }
+        body[data-theme="neon"] .link-card:hover {
+            border-color: #10b981;
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.5);
+            background: rgba(16, 185, 129, 0.35);
+        }
+        body[data-theme="neon"] .weather-modal-content {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.95) 0%, rgba(6, 182, 212, 0.95) 100%);
+        }
+        body[data-theme="neon"] .clock-modal-content {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.95) 0%, rgba(14, 165, 233, 0.95) 100%);
+        }
+        body[data-theme="neon"] .server-modal-content {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.95) 0%, rgba(16, 185, 129, 0.95) 100%);
+        }
+        body[data-theme="neon"] .modal-content {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.95) 0%, rgba(16, 185, 129, 0.95) 100%);
+        }
+
+        /* THEME 3: Sunset Vibes 🌅 */
+        body[data-theme="sunset"] {
+            background: linear-gradient(135deg, #ff512f 0%, #f09819 50%, #ff512f 100%);
+        }
+        body[data-theme="sunset"] .header {
+            background: linear-gradient(135deg, rgba(251, 146, 60, 0.4) 0%, rgba(239, 68, 68, 0.4) 100%);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+        body[data-theme="sunset"] .particle {
+            background: rgba(251, 191, 36, 1);
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.8);
+        }
+        body[data-theme="sunset"] .subtitle .badge {
+            background: rgba(251, 146, 60, 0.3);
+            border-color: rgba(251, 191, 36, 0.8);
+        }
+        body[data-theme="sunset"] .subtitle .badge:hover {
+            background: rgba(251, 146, 60, 0.5);
+            box-shadow: 0 5px 20px rgba(251, 146, 60, 0.6);
+        }
+        body[data-theme="sunset"] .search-box input {
+            border-color: rgba(251, 146, 60, 0.6);
+            background: rgba(251, 146, 60, 0.15);
+        }
+        body[data-theme="sunset"] .search-box input:focus {
+            border-color: #fb923c;
+            box-shadow: 0 0 30px rgba(251, 146, 60, 0.5);
+        }
+        body[data-theme="sunset"] .search-history {
+            background: rgba(251, 146, 60, 0.15);
+            border-color: rgba(251, 146, 60, 0.5);
+        }
+            background: rgba(251, 146, 60, 0.25);
+            border-color: rgba(251, 146, 60, 0.6);
+        }
+            background: rgba(251, 146, 60, 0.4);
+            box-shadow: 0 5px 20px rgba(251, 146, 60, 0.4);
+        }
+            background: linear-gradient(135deg, #fbbf24, #ef4444);
+            box-shadow: 0 5px 20px rgba(239, 68, 68, 0.7);
+        }
+        body[data-theme="sunset"] .link-card {
+            background: rgba(251, 146, 60, 0.25);
+            border-color: rgba(251, 146, 60, 0.5);
+        }
+        body[data-theme="sunset"] .link-card:hover {
+            border-color: #fb923c;
+            box-shadow: 0 15px 40px rgba(251, 146, 60, 0.5);
+            background: rgba(251, 146, 60, 0.4);
+        }
+        body[data-theme="sunset"] .weather-modal-content {
+            background: linear-gradient(135deg, rgba(251, 146, 60, 0.95) 0%, rgba(239, 68, 68, 0.95) 100%);
+        }
+        body[data-theme="sunset"] .clock-modal-content {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.95) 0%, rgba(251, 146, 60, 0.95) 100%);
+        }
+        body[data-theme="sunset"] .server-modal-content {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.95) 0%, rgba(220, 38, 38, 0.95) 100%);
+        }
+        body[data-theme="sunset"] .modal-content {
+            background: linear-gradient(135deg, rgba(251, 146, 60, 0.95) 0%, rgba(239, 68, 68, 0.95) 100%);
+        }
+
+        /* THEME 4: Ocean Breeze 🌊 */
+        body[data-theme="ocean"] {
+            background: linear-gradient(135deg, #0093E9 0%, #80D0C7 50%, #13547a 100%);
+        }
+        body[data-theme="ocean"] .header {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.4) 0%, rgba(14, 165, 233, 0.4) 100%);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+        body[data-theme="ocean"] .particle {
+            background: rgba(6, 182, 212, 1);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.8);
+        }
+        body[data-theme="ocean"] .subtitle .badge {
+            background: rgba(6, 182, 212, 0.3);
+            border-color: rgba(6, 182, 212, 0.8);
+        }
+        body[data-theme="ocean"] .subtitle .badge:hover {
+            background: rgba(6, 182, 212, 0.5);
+            box-shadow: 0 5px 20px rgba(6, 182, 212, 0.6);
+        }
+        body[data-theme="ocean"] .search-box input {
+            border-color: rgba(6, 182, 212, 0.6);
+            background: rgba(6, 182, 212, 0.15);
+        }
+        body[data-theme="ocean"] .search-box input:focus {
+            border-color: #06b6d4;
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.5);
+        }
+        body[data-theme="ocean"] .search-history {
+            background: rgba(6, 182, 212, 0.15);
+            border-color: rgba(6, 182, 212, 0.5);
+        }
+            background: rgba(6, 182, 212, 0.25);
+            border-color: rgba(6, 182, 212, 0.6);
+        }
+            background: rgba(6, 182, 212, 0.4);
+            box-shadow: 0 5px 20px rgba(6, 182, 212, 0.4);
+        }
+            background: linear-gradient(135deg, #06b6d4, #0ea5e9);
+            box-shadow: 0 5px 20px rgba(6, 182, 212, 0.7);
+        }
+        body[data-theme="ocean"] .link-card {
+            background: rgba(6, 182, 212, 0.25);
+            border-color: rgba(6, 182, 212, 0.5);
+        }
+        body[data-theme="ocean"] .link-card:hover {
+            border-color: #06b6d4;
+            box-shadow: 0 15px 40px rgba(6, 182, 212, 0.5);
+            background: rgba(6, 182, 212, 0.4);
+        }
+        body[data-theme="ocean"] .weather-modal-content {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.95) 0%, rgba(14, 165, 233, 0.95) 100%);
+        }
+        body[data-theme="ocean"] .clock-modal-content {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.95) 0%, rgba(59, 130, 246, 0.95) 100%);
+        }
+        body[data-theme="ocean"] .server-modal-content {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.95) 0%, rgba(16, 185, 129, 0.95) 100%);
+        }
+        body[data-theme="ocean"] .modal-content {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.95) 0%, rgba(14, 165, 233, 0.95) 100%);
+        }
+
+        /* THEME 5: Light Mode ☀️ */
+        body[data-theme="light"] {
+            background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 50%, #e0f2fe 100%);
+        }
+        body[data-theme="light"] .header {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(147, 51, 234, 0.15) 100%);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+        body[data-theme="light"] .header h1 {
+            background: linear-gradient(135deg, #3b82f6, #9333ea, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        body[data-theme="light"] .subtitle {
+            color: #1e293b;
+        }
+        body[data-theme="light"] .particle {
+            background: rgba(59, 130, 246, 0.6);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+        }
+        body[data-theme="light"] .subtitle .badge {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(59, 130, 246, 0.5);
+            color: #1e293b;
+        }
+        body[data-theme="light"] .subtitle .badge:hover {
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.3);
+            border-color: rgba(59, 130, 246, 0.8);
+        }
+        body[data-theme="light"] .search-box input {
+            border-color: rgba(59, 130, 246, 0.4);
+            background: rgba(255, 255, 255, 0.9);
+            color: #1e293b;
+        }
+        body[data-theme="light"] .search-box input::placeholder {
+            color: rgba(30, 41, 59, 0.5);
+        }
+        body[data-theme="light"] .search-box input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+            background: rgba(255, 255, 255, 1);
+        }
+        body[data-theme="light"] .search-box button {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+        body[data-theme="light"] .search-history {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        body[data-theme="light"] .search-history-title {
+            color: #3b82f6;
+        }
+        body[data-theme="light"] .search-history-item {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+            color: #1e293b;
+        }
+        body[data-theme="light"] .search-history-item:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+        body[data-theme="light"] .search-count {
+            background: #3b82f6;
+            color: white;
+        }
+        body[data-theme="light"] .sort-toggle,
+        body[data-theme="light"] .clear-history {
+            color: #1e293b;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        body[data-theme="light"] .sort-toggle:hover,
+        body[data-theme="light"] .clear-history:hover {
+            background: rgba(255, 255, 255, 1);
+        }
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(59, 130, 246, 0.4);
+            color: #1e293b;
+        }
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.3);
+            border-color: rgba(59, 130, 246, 0.6);
+        }
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.5);
+        }
+        body[data-theme="light"] .link-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(59, 130, 246, 0.3);
+            color: #1e293b;
+        }
+        body[data-theme="light"] .link-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.3);
+            background: rgba(255, 255, 255, 1);
+        }
+        body[data-theme="light"] .link-name {
+            color: #1e293b;
+        }
+        body[data-theme="light"] .weather-modal-content {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(240, 249, 255, 0.98) 100%);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+        body[data-theme="light"] .weather-modal-content h2 {
+            color: #3b82f6;
+        }
+        body[data-theme="light"] .weather-main-temp {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(147, 51, 234, 0.15));
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+        body[data-theme="light"] .weather-main-temp h2 {
+            color: #3b82f6;
+            text-shadow: none;
+        }
+        body[data-theme="light"] .weather-main-temp p {
+            color: #475569;
+        }
+        body[data-theme="light"] .weather-detail-item {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        body[data-theme="light"] .weather-detail-icon {
+            color: #3b82f6;
+        }
+        body[data-theme="light"] .weather-detail-label {
+            color: #64748b;
+        }
+        body[data-theme="light"] .weather-detail-value {
+            color: #1e293b;
+        }
+        body[data-theme="light"] .clock-modal-content {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(251, 245, 255, 0.98) 100%);
+            border-color: rgba(147, 51, 234, 0.5);
+        }
+        body[data-theme="light"] .clock-modal-content h2 {
+            color: #9333ea;
+        }
+        body[data-theme="light"] .clock-display {
+            color: #9333ea;
+            text-shadow: none;
+        }
+        body[data-theme="light"] .clock-info-item {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(147, 51, 234, 0.3);
+        }
+        body[data-theme="light"] .clock-info-label {
+            color: #64748b;
+        }
+        body[data-theme="light"] .clock-info-value {
+            color: #1e293b;
+        }
+        body[data-theme="light"] .server-modal-content {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(240, 253, 244, 0.98) 100%);
+            border-color: rgba(16, 185, 129, 0.5);
+        }
+        body[data-theme="light"] .server-status-display {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.15));
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+        body[data-theme="light"] .server-status-text {
+            color: #1e293b;
+            text-shadow: none;
+        }
+        body[data-theme="light"] .server-info-item {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        body[data-theme="light"] .server-info-label {
+            color: #64748b;
+        }
+        body[data-theme="light"] .server-info-value {
+            color: #1e293b;
+        }
+        body[data-theme="light"] .modal-content {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(250, 245, 255, 0.98) 100%);
+            border-color: rgba(139, 92, 246, 0.5);
+        }
+        body[data-theme="light"] .modal-content h2 {
+            color: #8b5cf6;
+        }
+        body[data-theme="light"] .modal-content input,
+        body[data-theme="light"] .modal-content select {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(139, 92, 246, 0.4);
+            color: #1e293b;
+        }
+        body[data-theme="light"] .modal-content input::placeholder {
+            color: rgba(30, 41, 59, 0.5);
+        }
+        body[data-theme="light"] .modal-content input:focus,
+        body[data-theme="light"] .modal-content select:focus {
+            border-color: #8b5cf6;
+            background: rgba(255, 255, 255, 1);
+        }
+        body[data-theme="light"] .modal-content label {
+            color: #1e293b;
+        }
+        body[data-theme="light"] .btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        body[data-theme="light"] .btn-secondary {
+            background: rgba(255, 255, 255, 0.9);
+            color: #1e293b;
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-attachment: fixed;
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background 0.5s ease;
+            touch-action: manipulation;
+            -ms-touch-action: manipulation;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: float 20s infinite;
+            opacity: 0.6;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-100vh) translateX(50px); }
+            50% { transform: translateY(-200vh) translateX(-50px); }
+            75% { transform: translateY(-300vh) translateX(30px); }
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 50px 15px 30px 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            padding: 35px 20px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.4) 0%, rgba(118, 75, 162, 0.4) 100%);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+            overflow: visible;
+            backdrop-filter: blur(10px);
+            transition: all 0.5s ease;
+            min-height: 220px;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            animation: glow 2s ease-in-out infinite alternate;
+            position: relative;
+            z-index: 1;
+            font-weight: 900;
+        }
+        
+        /* Make rocket emoji super visible */
+        .header-emoji {
+            -webkit-text-fill-color: initial;
+            background: none;
+            display: inline-block;
+            filter: drop-shadow(0 0 12px rgba(0, 0, 0, 1)) 
+                    drop-shadow(0 0 25px rgba(255, 255, 255, 0.9))
+                    drop-shadow(0 4px 10px rgba(0, 0, 0, 1))
+                    drop-shadow(0 0 5px rgba(255, 255, 255, 1));
+            animation: rocket-pulse 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes rocket-pulse {
+            from { 
+                filter: drop-shadow(0 0 12px rgba(0, 0, 0, 1)) 
+                        drop-shadow(0 0 25px rgba(255, 255, 255, 0.9))
+                        drop-shadow(0 4px 10px rgba(0, 0, 0, 1));
+            }
+            to { 
+                filter: drop-shadow(0 0 15px rgba(0, 0, 0, 1)) 
+                        drop-shadow(0 0 35px rgba(255, 255, 255, 1))
+                        drop-shadow(0 6px 15px rgba(0, 0, 0, 1));
+            }
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 10px var(--primary)); }
+            to { filter: drop-shadow(0 0 30px var(--secondary)); }
+        }
+
+        .header .subtitle {
+            font-size: 0.95em;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+            margin-top: 5px;
+        }
+
+        .subtitle .badge {
+            background: rgba(255, 255, 255, 0.25);
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.5s ease;
+            cursor: pointer;
+            font-size: 0.95em;
+            backdrop-filter: blur(10px);
+        }
+
+        .subtitle .badge:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 255, 255, 0.6);
+            border-color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Weather Modal */
+        .weather-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .weather-modal.show {
+            display: flex;
+        }
+
+        .weather-modal-content {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.95) 0%, rgba(139, 92, 246, 0.95) 100%);
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            backdrop-filter: blur(20px);
+        }
+
+        .weather-modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(239, 68, 68, 0.6);
+            border: none;
+            color: var(--text);
+            font-size: 1.5em;
+            cursor: pointer;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .weather-modal-close:hover {
+            background: rgba(239, 68, 68, 0.8);
+            transform: rotate(90deg);
+        }
+
+        .weather-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .weather-detail-item {
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .weather-detail-icon {
+            font-size: 2em;
+            color: #fbbf24;
+        }
+
+        .weather-detail-text {
+            flex: 1;
+        }
+
+        .weather-detail-label {
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 5px;
+        }
+
+        .weather-detail-value {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .weather-main-temp {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
+            border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .weather-main-temp h2 {
+            font-size: 3em;
+            color: #fff;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .weather-main-temp p {
+            font-size: 1.2em;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        /* Clock Modal */
+        .clock-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .clock-modal.show {
+            display: flex;
+        }
+
+        .clock-modal-content {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.95) 0%, rgba(168, 85, 247, 0.95) 100%);
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            text-align: center;
+            backdrop-filter: blur(20px);
+        }
+
+        .clock-modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(239, 68, 68, 0.6);
+            border: none;
+            color: var(--text);
+            font-size: 1.5em;
+            cursor: pointer;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .clock-modal-close:hover {
+            background: rgba(239, 68, 68, 0.8);
+            transform: rotate(90deg);
+        }
+
+        .clock-display {
+            font-size: 4em;
+            font-weight: 700;
+            color: #fff;
+            margin: 20px 0;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .clock-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .clock-info-item {
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .clock-info-label {
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 5px;
+        }
+
+        .clock-info-value {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        /* Server Modal */
+        .server-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .server-modal.show {
+            display: flex;
+        }
+
+        .server-modal-content {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.95) 0%, rgba(6, 182, 212, 0.95) 100%);
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            backdrop-filter: blur(20px);
+        }
+
+        .server-status-display {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
+            border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .server-status-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .server-status-text {
+            font-size: 2em;
+            font-weight: 600;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .server-info {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .server-info-item {
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .server-info-label {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .server-info-value {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Search Bar - FULL WIDTH */
+        .search-container {
+            margin: 30px 0;
+            width: 100%;
+            padding: 0;
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 18px 25px;
+            font-size: 1.1em;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.25);
+            color: var(--text);
+            outline: none;
+            transition: all 0.5s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-box input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .search-box input:focus {
+            border-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .search-box button {
+            padding: 18px 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 50px;
+            color: var(--text);
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .search-box button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.5);
+        }
+
+        /* Search History - FULL WIDTH */
+        .search-history {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            width: 100%;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .search-history-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sort-toggle {
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid var(--primary);
+            color: var(--text);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .sort-toggle:hover {
+            background: rgba(0, 212, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .clear-history {
+            background: rgba(255, 51, 102, 0.2);
+            border: 1px solid var(--danger);
+            color: var(--text);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            margin-left: 10px;
+        }
+
+        .clear-history:hover {
+            background: rgba(255, 51, 102, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .search-history-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .search-history-item {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-history-item:hover {
+            background: rgba(0, 212, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .search-count {
+            background: var(--primary);
+            color: var(--bg-dark);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        /* Tabs */
+        /* Links Grid */
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .link-card {
+            background: rgba(255, 255, 255, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .link-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .link-card:hover::before {
+            left: 100%;
+        }
+
+        .link-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            border-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 15px 40px rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.45);
+        }
+
+        .link-card.hidden {
+            display: none;
+        }
+
+        .link-card img {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .link-card:hover img {
+            transform: scale(1.1) rotate(5deg);
+            filter: drop-shadow(0 0 10px var(--primary));
+        }
+
+        .link-card .link-name {
+            font-size: 0.9em;
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        /* Favorite Star */
+        .favorite-star {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 1.5em;
+            z-index: 10;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            animation: starPulse 2s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes starPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* Preview on Hover */
+        .link-card-preview {
+            position: absolute;
+            bottom: 105%;
+            left: 50%;
+            transform: translateX(-50%) scale(0.95);
+            background: linear-gradient(135deg, rgba(20, 27, 58, 0.98) 0%, rgba(10, 14, 39, 0.98) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 15px;
+            padding: 15px;
+            min-width: 250px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            pointer-events: none;
+            backdrop-filter: blur(20px);
+        }
+
+        /* Desktop: Hover */
+        @media (hover: hover) and (pointer: fine) {
+            .link-card:hover .link-card-preview {
+                opacity: 1;
+                visibility: visible;
+                transform: translateX(-50%) scale(1);
+            }
+        }
+
+        /* Mobile: Tap to toggle */
+        @media (hover: none) or (pointer: coarse) {
+            .link-card.show-preview .link-card-preview {
+                opacity: 1;
+                visibility: visible;
+                transform: translateX(-50%) scale(1);
+            }
+            
+            .link-card-preview {
+                pointer-events: auto;
+            }
+            
+            /* Info button on mobile */
+            .link-info-btn {
+                display: none !important;  /* ASCUNS COMPLET */
+            }
+
+            /* Edit button on mobile - MEREU VIZIBIL */
+            .link-edit-btn {
+                position: absolute;
+                top: 8px;
+                left: 8px;  /* STÂNGA-SUS */
+                width: 28px;
+                height: 28px;
+                background: rgba(251, 146, 60, 0.9);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.75em;
+                color: white;
+                z-index: 10;
+                cursor: pointer;
+                opacity: 1;  /* MEREU VIZIBIL */
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+                pointer-events: auto;
+                user-select: none;
+                -webkit-user-select: none;
+                -webkit-tap-highlight-color: rgba(251, 146, 60, 0.3);
+                touch-action: manipulation;
+            }
+
+            /* Remove long-press show class - not needed anymore */
+            .link-card.show-edit .link-edit-btn {
+                opacity: 1;
+            }
+            
+            .link-edit-btn:active {
+                transform: scale(0.9);
+                background: rgba(251, 146, 60, 1);
+            }
+        }
+
+        /* Hide info and edit buttons on desktop */
+        @media (hover: hover) and (pointer: fine) {
+            .link-info-btn {
+                display: none;
+            }
+
+            .link-edit-btn {
+                position: absolute;
+                top: 8px;
+                left: 8px;
+                width: 28px;
+                height: 28px;
+                background: rgba(251, 146, 60, 0.9);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.8em;
+                color: white;
+                z-index: 10;
+                cursor: pointer;
+                opacity: 0;
+                transition: opacity 0.3s ease, transform 0.2s ease;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            }
+
+            .link-card:hover .link-edit-btn {
+                opacity: 1;
+            }
+
+            .link-edit-btn:hover {
+                transform: scale(1.1);
+                background: rgba(251, 146, 60, 1);
+            }
+        }
+
+        .preview-url {
+            font-size: 0.75em;
+            color: var(--text-dim);
+            word-break: break-all;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 8px;
+        }
+
+        .preview-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85em;
+        }
+
+        .preview-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .preview-stat-label {
+            color: var(--text-dim);
+            font-size: 0.8em;
+        }
+
+        .preview-stat-value {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Offline Indicator */
+        .offline-indicator {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(239, 68, 68, 0.95);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            font-weight: 600;
+            z-index: 10000;
+            box-shadow: 0 5px 20px rgba(239, 68, 68, 0.5);
+            display: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .offline-indicator.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* Drag & Drop Cursor */
+        .link-card[draggable="true"] {
+            cursor: grab;
+        }
+
+        .link-card[draggable="true"]:active {
+            cursor: grabbing;
+        }
+
+        /* Add Site Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.95) 0%, rgba(219, 39, 119, 0.95) 100%);
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            backdrop-filter: blur(20px);
+        }
+
+        /* Custom Scrollbar for Modal */
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .modal-content input,
+        .modal-content select {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 3px solid #000000;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #000000;
+            font-size: 0.95em;
+            outline: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content input:focus,
+        .modal-content select:focus,
+        .modal-content textarea:focus {
+            border-color: #8B5CF6;
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
+        }
+
+        .modal-content input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .modal-content input:focus,
+        .modal-content select:focus {
+            border-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--text);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-primary:hover,
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .add-site-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #fbbf24, #f97316);
+            border: none;
+            border-radius: 50%;
+            font-size: 2em;
+            color: var(--text);
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(251, 191, 36, 0.6);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .add-site-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 10px 30px rgba(251, 191, 36, 0.8);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .container {
+                padding: 10px;
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+            }
+            
+            .header {
+                width: 100%;
+                max-width: 100%;
+                margin: 0 0 20px 0;
+                padding: 20px 10px;
+                border-radius: 10px;
+            }
+            
+            .enhanced-clock-container {
+                width: 100%;
+                max-width: 100%;
+                padding: 8px 15px;
+                margin: 0;
+                height: 130px;
+                box-sizing: border-box;
+            }
+            
+            .links-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                gap: 15px;
+            }
+
+            .subtitle .badge {
+                font-size: 0.9em;
+                padding: 8px 16px;
+            }
+
+            .weather-details {
+                grid-template-columns: 1fr;
+            }
+
+            .weather-modal-content {
+                padding: 20px;
+            }
+
+            .weather-main-temp h2 {
+                font-size: 2em;
+            }
+
+            .clock-info {
+                grid-template-columns: 1fr;
+            }
+
+            .clock-display {
+                font-size: 2.5em;
+            }
+
+            .clock-modal-content, .server-modal-content {
+                padding: 20px;
+            }
+
+            .server-status-text {
+                font-size: 1.5em;
+            }
+
+            .server-status-icon {
+                font-size: 3em;
+            }
+
+            /* Mobile: Preview cards */
+            .link-card-preview {
+                min-width: 200px;
+                padding: 12px;
+                font-size: 0.85em;
+                bottom: auto;
+                top: 105%;
+            }
+
+            .preview-url {
+                font-size: 0.7em;
+                margin-bottom: 6px;
+                padding-bottom: 6px;
+            }
+
+            .preview-stats {
+                gap: 10px;
+            }
+
+            /* Mobile: Offline indicator */
+            .offline-indicator {
+                top: 5px;
+                font-size: 0.75em;
+                padding: 8px 15px;
+                max-width: 90%;
+                text-align: center;
+            }
+
+            /* Mobile: Fixed buttons smaller */
+            .add-site-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5em;
+                bottom: 20px;
+                right: 20px;
+            }
+
+            #soundToggle, #themeToggle {
+                width: 45px !important;
+                height: 45px !important;
+                font-size: 1.2em !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="particles" class="particles"></div>
+    
+    <!-- Audio element for typing sound -->
+    <audio id="typingSound" preload="auto">
+        <source src="keyboard-typing-one-short-292592.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- Audio System - All Sounds -->
+    <audio id="clickSound" preload="auto"><source src="click.mp3" type="audio/mpeg"></audio>
+    <audio id="categorySound" preload="auto"><source src="categorie.mp3" type="audio/mpeg"></audio>
+    <audio id="toggleSound" preload="auto"><source src="toggle.mp3" type="audio/mpeg"></audio>
+    <audio id="permanentSound" preload="auto"><source src="permanent.mp3" type="audio/mpeg"></audio>
+    <audio id="notificationSound" preload="auto"><source src="notification-positive-bleep-joshua-chivers-1-00-01.mp3" type="audio/mpeg"></audio>
+    <audio id="bleepSound" preload="auto"><source src="arcade-bleep-sound-6071.mp3" type="audio/mpeg"></audio>
+    <audio id="thudSound" preload="auto"><source src="thud-sound-effect-319090.mp3" type="audio/mpeg"></audio>
+    <audio id="serverBeepSound" preload="auto"><source src="ecg-machine-beep-gfx-sounds-1-1-00-00.mp3" type="audio/mpeg"></audio>
+    
+    <!-- Sound Control Toggle -->
+    <button id="soundToggle" style="position: fixed; bottom: 100px; right: 30px; width: 50px; height: 50px; background: linear-gradient(135deg, #10b981, #06b6d4); border: none; border-radius: 50%; color: var(--text); cursor: pointer; box-shadow: 0 5px 20px rgba(16, 185, 129, 0.6); transition: all 0.3s ease; z-index: 100; font-size: 1.5em;" onclick="toggleSound()" title="Toggle Sound">
+        🔊
+    </button>
+
+    <!-- Theme Toggle Button -->
+    <button id="themeToggle" style="position: fixed; bottom: 170px; right: 30px; width: 50px; height: 50px; background: linear-gradient(135deg, #667eea, #764ba2); border: none; border-radius: 50%; color: var(--text); cursor: pointer; box-shadow: 0 5px 20px rgba(102, 126, 234, 0.6); transition: all 0.3s ease; z-index: 100; font-size: 1.5em;" onclick="cycleTheme()" title="Change Theme">
+        🎨
+    </button>
+
+    <!-- Offline Indicator -->
+    <div class="offline-indicator" id="offlineIndicator">
+        📡 Offline Mode - Unele funcții pot fi limitate
+    </div>
+    
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1><span class="header-emoji">🚀</span>  FAMILIA STREANGA CDȘ</h1>
+            
+            <!-- THREE COLUMN LAYOUT: Weather | Clock | Server -->
+            <div class="header-three-columns">
+                <!-- LEFT: Weather Badge -->
+                <div class="header-left">
+                    <span class="badge badge-weather" onclick="toggleWeatherModal()" style="cursor: pointer;" title="Click pentru detalii vreme">
+                        <i class="fas fa-cloud-sun" style="font-size: 1.3em;"></i>
+                        <span class="weather-stack">
+                            <span id="weather" class="weather-main">Loading...</span>
+                            <span id="weatherLocationMini" class="weather-loc-mini">Localizare...</span>
+                        </span>
+                        <i class="fas fa-sync-alt" onclick="event.stopPropagation(); loadWeather(true);" style="font-size: 0.7em; opacity: 0.7; cursor: pointer;" title="Refresh"></i>
+                    </span>
+                </div>
+                
+                <!-- CENTER: Clock -->
+                <div class="header-center">
+                    <div class="enhanced-clock-container">
+                        <div class="time-date-inline">
+                            <div class="main-time-display" id="mainTime">--:--:--</div>
+                            <div class="full-date-display" id="fullDateMain">--</div>
+                        </div>
+                        
+                        <div class="date-details-grid">
+                            <div class="date-detail-item">
+                                <div class="detail-emoji">📅</div>
+                                <div class="date-detail-label">
+                                    <div class="detail-text">Zi Săptămână</div>
+                                    <div class="date-detail-value" id="dayNameMain">--</div>
+                                </div>
+                            </div>
+                            <div class="date-detail-item">
+                                <div class="detail-emoji">📊</div>
+                                <div class="date-detail-label">
+                                    <div class="detail-text">Săptămâna</div>
+                                    <div class="date-detail-value" id="weekNumMain">--</div>
+                                </div>
+                            </div>
+                            <div class="date-detail-item">
+                                <div class="detail-emoji">🌍</div>
+                                <div class="date-detail-label">
+                                    <div class="detail-text">Zi din An</div>
+                                    <div class="date-detail-value" id="dayOfYearMain">--</div>
+                                </div>
+                            </div>
+                            <div class="date-detail-item">
+                                <div class="detail-emoji">🗓️</div>
+                                <div class="date-detail-label">
+                                    <div class="detail-text">An</div>
+                                    <div class="date-detail-value" id="yearMain">--</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- RIGHT: Server Badge -->
+                <div class="header-right">
+                    <span class="badge badge-server" onclick="toggleServerModal()">
+                        <i class="fas fa-server" style="font-size: 1.1em; margin-bottom: 1px; opacity: 0.9;"></i>
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 0px;">
+                            <div style="display: flex; align-items: center; gap: 2px;">
+                                <span class="status-dot" style="width: 5px; height: 5px; border-radius: 50%; background: var(--danger); transition: all 0.3s;"></span>
+                                <div style="font-weight: 800; font-size: 0.85em;" id="serverStatus">Check</div>
+                            </div>
+                            <div style="font-size: 0.55em; opacity: 0.9; font-weight: 600;">Click</div>
+                        </div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Google Search Bar - FULL WIDTH -->
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="googleSearchInput" placeholder="🔍 Caută pe Google sau introdu URL..." 
+                       onkeypress="if(event.key==='Enter') performGoogleSearch()">
+                <button onclick="performGoogleSearch()">Caută</button>
+            </div>
+        </div>
+
+        <!-- Search History - FULL WIDTH -->
+        <div class="search-container">
+            <div class="search-history" id="searchHistory">
+                <div class="search-history-header">
+                    <div class="search-history-title">
+                        <i class="fas fa-history"></i>
+                        Ultimele căutări
+                    </div>
+                    <div>
+                        <button class="sort-toggle" onclick="toggleSortMode()" id="sortButton">
+                            <i class="fas fa-sort"></i> Sortare: Frecvență
+                        </button>
+                        <button class="clear-history" onclick="clearSearchHistory()">
+                            <i class="fas fa-trash"></i> Șterge
+                        </button>
+                    </div>
+                </div>
+                <div class="search-history-items" id="searchHistoryItems">
+                    <!-- History items will be added here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Button Filter - FULL WIDTH -->
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="filterInput" placeholder="🔍 Caută site sau categorie (ex: email, filme, youtube)..." 
+                       oninput="filterButtons()">
+            </div>
+        </div>
+
+        <!-- Links Grid -->
+        <div class="links-grid" id="linksGrid"></div>
+    </div>
+
+    <!-- Add Site Button -->
+    <button class="add-site-btn" onclick="openAddModal()">+</button>
+
+    <!-- Add Site Modal -->
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 15px;">➕ Adaugă Site Nou</h2>
+            <label style="color: #000000; display: block; font-size: 0.9em; margin-bottom: 3px; font-weight: 700;">📝 Nume Site:</label>
+            <input type="text" id="siteName" placeholder="Nume site (ex: YouTube)">
+            <label style="color: #000000; display: block; font-size: 0.9em; margin-top: 10px; margin-bottom: 3px; font-weight: 700;">🔗 URL:</label>
+            <input type="text" id="siteUrl" placeholder="URL (ex: https://youtube.com)">
+            <label style="color: #000000; display: block; font-size: 0.9em; margin-top: 10px; margin-bottom: 3px; font-weight: 700;">📁 Categorie:</label>
+            <select id="siteCategory">
+                <option value="">-- 📋 Selectează Categoria --</option>
+            </select>
+            <div class="modal-buttons">
+                <button class="btn-primary" onclick="addSite()">✅ Adaugă</button>
+                <button class="btn-secondary" onclick="closeAddModal()">❌ Anulează</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Site Modal -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 15px;">✏️ Editează Site</h2>
+            
+            <label style="color: #000000; margin-top: 5px; display: block; font-size: 0.9em; margin-bottom: 3px; font-weight: 700;">📝 Nume Site:</label>
+            <input type="text" id="editSiteName" placeholder="Nume site (ex: YouTube)">
+            
+            <label style="color: #000000; margin-top: 10px; display: block; font-size: 0.9em; margin-bottom: 3px; font-weight: 700;">🔗 URL Site:</label>
+            <input type="text" id="editSiteUrl" placeholder="URL (ex: https://youtube.com)">
+            
+            <label style="color: #000000; margin-top: 10px; display: block; font-size: 0.9em; margin-bottom: 3px; font-weight: 700;">🖼️ URL Icon/Poză (opțional):</label>
+            <input type="text" id="editIconUrl" placeholder="ex: https://example.com/logo.png">
+            <div style="color: rgba(0, 0, 0, 0.7); font-size: 0.75em; margin: 3px 0; font-weight: 600;">
+                💡 PNG, JPG, SVG. Gol = favicon automat
+            </div>
+            
+            <label style="color: #000000; margin-top: 10px; display: block; font-size: 0.9em; margin-bottom: 3px; font-weight: 700;">📁 Categorie:</label>
+            <select id="editSiteCategory">
+                <option value="">-- 📋 Selectează Categoria --</option>
+            </select>
+            
+            <label style="color: #000000; margin-top: 10px; display: block; font-size: 0.9em; margin-bottom: 3px; font-weight: 700;">🏷️ Tags (opțional):</label>
+            <input type="text" id="editSiteTags" placeholder="ex: video, music">
+            
+            <label style="color: #000000; margin-top: 10px; display: block; font-size: 0.9em; margin-bottom: 3px; font-weight: 700;">📒 Note Personale:</label>
+            <textarea id="editSiteNotes" placeholder="Note..." style="width: 100%; padding: 10px; margin: 5px 0; border: 3px solid #000000; border-radius: 10px; background: rgba(255, 255, 255, 0.9); color: #000000; font-size: 0.9em; outline: none; backdrop-filter: blur(10px); resize: vertical; min-height: 50px; font-family: inherit;"></textarea>
+            
+            <div class="modal-buttons" style="margin-top: 15px;">
+                <button class="btn-primary" onclick="saveEditSite()">💾 Salvează</button>
+                <button class="btn-secondary" onclick="closeEditModal()">❌ Anulează</button>
+                <button class="btn-secondary" onclick="deleteSite()" style="background: rgba(239, 68, 68, 0.3); border-color: var(--danger);">🗑️ Șterge</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weather Modal -->
+    <div class="weather-modal" id="weatherModal" onclick="if(event.target === this) closeWeatherModal()">
+        <div class="weather-modal-content">
+            <button class="weather-modal-close" onclick="closeWeatherModal()">✕</button>
+            
+            <h2 style="color: #ffffff; margin-bottom: 15px; text-align: center;">🌤️ Informații Vreme</h2>
+            
+            <div class="weather-main-temp">
+                <h2 id="modalMainTemp">--°C</h2>
+                <p id="modalLocation">Loading...</p>
+                <p id="modalDescription">--</p>
+            </div>
+
+            <div class="weather-details" id="weatherDetails">
+                <div class="weather-detail-item">
+                    <div class="weather-detail-icon">🌡️</div>
+                    <div class="weather-detail-text">
+                        <div class="weather-detail-label">Temperatura resimțită</div>
+                        <div class="weather-detail-value" id="feelsLike">--°C</div>
+                    </div>
+                </div>
+
+                <div class="weather-detail-item">
+                    <div class="weather-detail-icon">💧</div>
+                    <div class="weather-detail-text">
+                        <div class="weather-detail-label">Umiditate</div>
+                        <div class="weather-detail-value" id="humidity">--%</div>
+                    </div>
+                </div>
+
+                <div class="weather-detail-item">
+                    <div class="weather-detail-icon">🌪️</div>
+                    <div class="weather-detail-text">
+                        <div class="weather-detail-label">Vânt</div>
+                        <div class="weather-detail-value" id="wind">-- km/h</div>
+                    </div>
+                </div>
+
+                <div class="weather-detail-item">
+                    <div class="weather-detail-icon">🔽</div>
+                    <div class="weather-detail-text">
+                        <div class="weather-detail-label">Presiune</div>
+                        <div class="weather-detail-value" id="pressure">-- hPa</div>
+                    </div>
+                </div>
+
+                <div class="weather-detail-item">
+                    <div class="weather-detail-icon">👁️</div>
+                    <div class="weather-detail-text">
+                        <div class="weather-detail-label">Vizibilitate</div>
+                        <div class="weather-detail-value" id="visibility">-- km</div>
+                    </div>
+                </div>
+
+                <div class="weather-detail-item">
+                    <div class="weather-detail-icon">🌅</div>
+                    <div class="weather-detail-text">
+                        <div class="weather-detail-label">Răsărit</div>
+                        <div class="weather-detail-value" id="sunrise">--:--</div>
+                    </div>
+                </div>
+
+                <div class="weather-detail-item">
+                    <div class="weather-detail-icon">🌇</div>
+                    <div class="weather-detail-text">
+                        <div class="weather-detail-label">Apus</div>
+                        <div class="weather-detail-value" id="sunset">--:--</div>
+                    </div>
+                </div>
+
+                <div class="weather-detail-item">
+                    <div class="weather-detail-icon">☁️</div>
+                    <div class="weather-detail-text">
+                        <div class="weather-detail-label">Acoperire nori</div>
+                        <div class="weather-detail-value" id="cloudcover">--%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clock Modal -->
+    <div class="clock-modal" id="clockModal" onclick="if(event.target === this) closeClockModal()">
+        <div class="clock-modal-content">
+            <button class="clock-modal-close" onclick="closeClockModal()">✕</button>
+            
+            <h2 style="color: var(--primary); margin-bottom: 20px;">🕐 Informații Ceas</h2>
+            
+            <div class="clock-display" id="modalClockTime">--:--:--</div>
+            
+            <div class="clock-info">
+                <div class="clock-info-item">
+                    <div class="clock-info-label">📅 Dată completă</div>
+                    <div class="clock-info-value" id="fullDate">--</div>
+                </div>
+                <div class="clock-info-item">
+                    <div class="clock-info-label">📆 Zi din săptămână</div>
+                    <div class="clock-info-value" id="dayOfWeek">--</div>
+                </div>
+                <div class="clock-info-item">
+                    <div class="clock-info-label">🌍 Zi din an</div>
+                    <div class="clock-info-value" id="dayOfYear">--</div>
+                </div>
+                <div class="clock-info-item">
+                    <div class="clock-info-label">📊 Săptămâna</div>
+                    <div class="clock-info-value" id="weekNumber">--</div>
+                </div>
+                <div class="clock-info-item">
+                    <div class="clock-info-label">🌐 Fus orar</div>
+                    <div class="clock-info-value" id="timezone">--</div>
+                </div>
+                <div class="clock-info-item">
+                    <div class="clock-info-label">⏰ UTC Offset</div>
+                    <div class="clock-info-value" id="utcOffset">--</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Server Modal -->
+    <div class="server-modal" id="serverModal" onclick="if(event.target === this) closeServerModal()">
+        <div class="server-modal-content">
+            <button class="clock-modal-close" onclick="closeServerModal()">✕</button>
+            
+            <h2 style="color: var(--primary); margin-bottom: 20px; text-align: center;">🖥️ Informații Server</h2>
+            
+            <div class="server-status-display">
+                <div class="server-status-icon" id="modalServerIcon">🖥️</div>
+                <div class="server-status-text" id="modalServerStatus">Checking...</div>
+            </div>
+            
+            <div class="server-info">
+                <div class="server-info-item">
+                    <span class="server-info-label">🌐 Server URL</span>
+                    <span class="server-info-value" id="configuredServerUrl">localhost:8899</span>
+                </div>
+                <div class="server-info-item">
+                    <span class="server-info-label">🔗 Endpoint</span>
+                    <span class="server-info-value" id="configuredEndpoint">/online</span>
+                </div>
+                <div class="server-info-item">
+                    <span class="server-info-label">🕐 Ultima verificare</span>
+                    <span class="server-info-value" id="lastCheck">--</span>
+                </div>
+                <div class="server-info-item">
+                    <span class="server-info-label">📊 Status</span>
+                    <span class="server-info-value" id="serverStatusDetail">--</span>
+                </div>
+                <div class="server-info-item">
+                    <span class="server-info-label">⏱️ Uptime</span>
+                    <span class="server-info-value" id="serverUptime">--</span>
+                </div>
+                <div class="server-info-item">
+                    <span class="server-info-label">📈 Verificări totale</span>
+                    <span class="server-info-value" id="totalChecks">0</span>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn-primary" onclick="checkServerStatus(); setTimeout(() => updateServerModal(), 500);" style="flex: 1; padding: 15px;">
+                    🔄 Verifică din nou
+                </button>
+                <button class="btn-secondary" onclick="openServerSettings()" style="flex: 1; padding: 15px;">
+                    ⚙️ Setări
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Server Settings Modal -->
+    <div class="modal" id="serverSettingsModal">
+        <div class="modal-content">
+            <h2>⚙️ Setări Server</h2>
+            
+            <label style="color: #000000; margin-top: 15px; display: block; font-weight: 700;">🌐 Server URL:</label>
+            <input type="text" id="settingsServerUrl" placeholder="localhost:8899" value="localhost:8899">
+            
+            <label style="color: #000000; margin-top: 15px; display: block; font-weight: 700;">🔗 Endpoint:</label>
+            <input type="text" id="settingsEndpoint" placeholder="/online" value="/online">
+            
+            <label style="color: #000000; margin-top: 15px; display: block; font-weight: 700;">
+                <input type="checkbox" id="settingsNotifications" style="width: auto; margin-right: 10px;">
+                🔔 Activează notificări (sunet când serverul se schimbă)
+            </label>
+            
+            <label style="color: #000000; margin-top: 15px; display: block; font-weight: 700;">
+                <input type="checkbox" id="settingsNotificationSound" style="width: auto; margin-right: 10px;">
+                🔊 Redă sunet la notificări
+            </label>
+            
+            <div style="background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); padding: 15px; border-radius: 10px; margin-top: 20px;">
+                <div style="color: var(--text-dim); font-size: 0.9em; margin-bottom: 10px;">📊 Statistici:</div>
+                <div style="display: flex; justify-content: space-between; margin: 5px 0;">
+                    <span style="color: var(--text-dim);">Verificări totale:</span>
+                    <span style="color: var(--text); font-weight: 600;" id="statsChecks">0</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin: 5px 0;">
+                    <span style="color: var(--text-dim);">Verificări online:</span>
+                    <span style="color: var(--success); font-weight: 600;" id="statsOnline">0</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin: 5px 0;">
+                    <span style="color: var(--text-dim);">Verificări offline:</span>
+                    <span style="color: var(--danger); font-weight: 600;" id="statsOffline">0</span>
+                </div>
+                <button onclick="resetServerStats()" style="width: 100%; margin-top: 10px; padding: 8px; background: rgba(255, 51, 102, 0.2); border: 1px solid var(--danger); color: var(--text); border-radius: 8px; cursor: pointer;">
+                    Resetează statistici
+                </button>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="btn-primary" onclick="saveServerSettings()">💾 Salvează</button>
+                <button class="btn-secondary" onclick="closeServerSettings()">❌ Anulează</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== PREVENT ZOOM ONLY ON MOBILE =====
+        (function() {
+            'use strict';
+            
+            // Detect if device is mobile
+            const isMobile = () => {
+                // Check screen width
+                const isSmallScreen = window.matchMedia('(max-width: 1024px)').matches;
+                // Check touch support
+                const hasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+                // Check user agent
+                const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+                const isMobileUA = mobileRegex.test(navigator.userAgent);
+                
+                return (isSmallScreen && hasTouch) || isMobileUA;
+            };
+            
+            // Only apply zoom prevention on mobile
+            if (!isMobile()) {
+                console.log('Desktop detected - zoom allowed');
+                return; // Exit - allow zoom on desktop
+            }
+            
+            console.log('Mobile detected - zoom prevention active');
+            
+            // Force zoom to 1 constantly
+            const forceZoom = () => {
+                if (document.body) {
+                    document.body.style.zoom = '1';
+                    document.body.style.transform = 'scale(1)';
+                }
+                if (document.documentElement) {
+                    document.documentElement.style.zoom = '1';
+                    document.documentElement.style.transform = 'scale(1)';
+                }
+            };
+            
+            // Prevent ALL gestures that could zoom
+            const preventZoomGesture = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                forceZoom();
+                return false;
+            };
+            
+            // Block gesture events
+            ['gesturestart', 'gesturechange', 'gestureend'].forEach(event => {
+                document.addEventListener(event, preventZoomGesture, { capture: true, passive: false });
+                window.addEventListener(event, preventZoomGesture, { capture: true, passive: false });
+            });
+            
+            // Block touchstart with 2+ fingers
+            document.addEventListener('touchstart', function(e) {
+                if (e.touches && e.touches.length > 1) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    forceZoom();
+                    return false;
+                }
+            }, { capture: true, passive: false });
+            
+            // Block touchmove with 2+ fingers
+            document.addEventListener('touchmove', function(e) {
+                if (e.touches && e.touches.length > 1) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    forceZoom();
+                    return false;
+                }
+                if (e.scale && e.scale !== 1) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    forceZoom();
+                    return false;
+                }
+            }, { capture: true, passive: false });
+            
+            // Block double-tap zoom on non-interactive elements
+            let lastTap = 0;
+            document.addEventListener('touchend', function(e) {
+                const now = Date.now();
+                const isInteractive = e.target.closest('button, a, input, textarea, select, .link-card, .badge, [onclick]');
+                if (!isInteractive && (now - lastTap <= 300)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    forceZoom();
+                    return false;
+                }
+                lastTap = now;
+            }, { capture: true, passive: false });
+            
+            // Force zoom on mobile events
+            ['load', 'resize', 'orientationchange', 'visibilitychange'].forEach(event => {
+                window.addEventListener(event, forceZoom, { capture: true });
+            });
+            
+            // Aggressive interval check on mobile (every 50ms)
+            setInterval(forceZoom, 50);
+            
+            // Immediate force
+            forceZoom();
+            
+            // Force after DOMContentLoaded
+            document.addEventListener('DOMContentLoaded', forceZoom);
+            
+        })();
+        
+        // ===== THEME SYSTEM =====
+        const THEMES = ['purple', 'neon', 'sunset', 'ocean', 'light'];
+        const THEME_KEY = 'selectedTheme_v1';
+        let currentThemeIndex = 0;
+        
+        const THEME_INFO = {
+            purple: { name: '💜 Purple Dream', emoji: '💜' },
+            neon: { name: '💚 Neon Night', emoji: '💚' },
+            sunset: { name: '🌅 Sunset Vibes', emoji: '🌅' },
+            ocean: { name: '🌊 Ocean Breeze', emoji: '🌊' },
+            light: { name: '☀️ Light Mode', emoji: '☀️' }
+        };
+        
+        function loadTheme() {
+            try {
+                const saved = localStorage.getItem(THEME_KEY);
+                if (saved && THEMES.includes(saved)) {
+                    const index = THEMES.indexOf(saved);
+                    currentThemeIndex = index;
+                    applyTheme(saved);
+                } else {
+                    applyTheme(THEMES[0]);
+                }
+            } catch (e) {
+                applyTheme(THEMES[0]);
+            }
+        }
+        
+        function applyTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+            updateThemeButton(theme);
+        }
+        
+        function updateThemeButton(theme) {
+            const btn = document.getElementById('themeToggle');
+            if (btn) {
+                btn.textContent = THEME_INFO[theme].emoji;
+                btn.title = `Current: ${THEME_INFO[theme].name}`;
+                
+                // Update button gradient based on theme
+                const gradients = {
+                    purple: 'linear-gradient(135deg, #667eea, #764ba2)',
+                    neon: 'linear-gradient(135deg, #10b981, #06b6d4)',
+                    sunset: 'linear-gradient(135deg, #fb923c, #ef4444)',
+                    ocean: 'linear-gradient(135deg, #06b6d4, #0ea5e9)',
+                    light: 'linear-gradient(135deg, #3b82f6, #8b5cf6)'
+                };
+                btn.style.background = gradients[theme];
+            }
+        }
+        
+        function cycleTheme() {
+            playSound('categorySound', 0.4);
+            currentThemeIndex = (currentThemeIndex + 1) % THEMES.length;
+            const newTheme = THEMES[currentThemeIndex];
+            
+            applyTheme(newTheme);
+            localStorage.setItem(THEME_KEY, newTheme);
+            
+            // Show notification
+            showNotification(`🎨 Theme: ${THEME_INFO[newTheme].name}`, 'success');
+        }
+        
+        // ===== AUDIO SYSTEM =====
+        const SOUND_ENABLED_KEY = 'soundEnabled_v1';
+        let soundEnabled = true;
+        
+        function loadSoundSettings() {
+            try {
+                const saved = localStorage.getItem(SOUND_ENABLED_KEY);
+                soundEnabled = saved === null ? true : saved === 'true';
+                updateSoundButton();
+            } catch (e) {
+                soundEnabled = true;
+            }
+        }
+        
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            localStorage.setItem(SOUND_ENABLED_KEY, soundEnabled.toString());
+            updateSoundButton();
+            
+            if (soundEnabled) {
+                playSound('bleepSound', 0.3);
+                showNotification('🔊 Sunete activate', 'success');
+            } else {
+                showNotification('🔇 Sunete dezactivate', 'info');
+            }
+        }
+        
+        function updateSoundButton() {
+            const btn = document.getElementById('soundToggle');
+            if (btn) {
+                btn.textContent = soundEnabled ? '🔊' : '🔇';
+                btn.title = soundEnabled ? 'Dezactivează sunete' : 'Activează sunete';
+            }
+        }
+        
+        function playSound(soundId, volume = 0.5) {
+            if (!soundEnabled) return;
+            
+            try {
+                const sound = document.getElementById(soundId);
+                if (sound) {
+                    sound.currentTime = 0;
+                    sound.volume = volume;
+                    sound.play().catch(e => console.log('Sound play error:', e));
+                }
+            } catch (e) {
+                console.error('Error playing sound:', e);
+            }
+        }
+        
+        // Typing sound functionality
+        let lastTypingTime = 0;
+        const typingDelay = 100;
+
+        function playTypingSound() {
+            const now = Date.now();
+            if (now - lastTypingTime > typingDelay) {
+                playSound('typingSound', 0.3);
+                lastTypingTime = now;
+            }
+        }
+
+        function playNotificationBeep() {
+            if (!soundEnabled) return;
+            playSound('serverBeepSound', 0.4);
+        }
+
+        // All site links data
+        let links = [
+            { name: "Yahoo", url: "https://mail.yahoo.com/d/folders/1", category: "email" },
+            { name: "Gmail", url: "https://mail.google.com", category: "email" },
+            { name: "YouTube", url: "https://www.youtube.com", category: "video" },
+            { name: "Facebook", url: "https://www.facebook.com", category: "social" },
+            { name: "eBay", url: "https://www.ebay.com", category: "shopping" },
+            { name: "eBay UK", url: "https://www.ebay.co.uk", category: "shopping" },
+            { name: "AliExpress", url: "https://www.aliexpress.com", category: "shopping" },
+            { name: "ClickSud", url: "https://clicksud.co/", category: "filme" },
+            { name: "Filelist", url: "https://filelist.io/login.php", category: "fisiere" },
+            { name: "DivX Filme", url: "https://divxfilmeonline.tv/filme-online/", category: "filme" },
+            { name: "IMDB", url: "https://www.imdb.com/watchlist", category: "filme" },
+            { name: "FilmeHD API", url: "https://filmehd.se/wp-json", category: "filme" },
+            { name: "Vox Filme", url: "https://voxfilmeonline.biz/", category: "filme" },
+            { name: "JustWatch", url: "https://www.justwatch.com/ro/filme", category: "filme" },
+            { name: "Portalul TV", url: "https://portalultautv.biz/", category: "filme" },
+            { name: "Top Filme HD", url: "https://www.topfilmehd.ro/", category: "filme" },
+            { name: "Cinepub", url: "https://cinepub.ro/", category: "filme" },
+            { name: "Pluto TV", url: "https://pluto.tv/uk/hub/home", category: "filme" },
+            { name: "Despre Seriale", url: "https://despre-seriale.net/", category: "filme" },
+            { name: "Voyo", url: "https://voyo.ro/", category: "filme" },
+            { name: "Filmflix", url: "https://filmflix.ro/", category: "filme" },
+            { name: "Tubi", url: "https://tubitv.com/", category: "filme" },
+            { name: "123Movies", url: "https://123moviesonl.net/", category: "filme" },
+            { name: "Crackle", url: "https://www.crackle.com/", category: "filme" },
+            { name: "Roku", url: "https://www.roku.com/en-gb/", category: "filme" },
+            { name: "Filmzie", url: "https://filmzie.com/home", category: "filme" },
+            { name: "Yidio", url: "https://www.yidio.com/", category: "filme" },
+            { name: "Fawesome", url: "https://fawesome.tv/home/", category: "filme" },
+            { name: "CONtv", url: "https://www.contv.com/", category: "filme" },
+            { name: "Cineby", url: "https://www.cineby.app/browse/movie", category: "filme" },
+            { name: "DeepAI", url: "https://deepai.org/", category: "ai" },
+            { name: "OpenAI", url: "https://openai.com", category: "ai" },
+            { name: "DeepSeek", url: "https://deepseek.ai", category: "ai" },
+            { name: "Gemini AI", url: "https://gemini.google.com", category: "ai" },
+            { name: "Arduino", url: "https://www.arduino.cc", category: "electronics" },
+            { name: "Blynk", url: "https://blynk.io", category: "electronics" },
+            { name: "Adafruit", url: "https://www.adafruit.com", category: "electronics" },
+            { name: "App Inventor", url: "https://appinventor.mit.edu", category: "development" },
+            { name: "GitHub", url: "https://github.com", category: "development" },
+            { name: "Kodular", url: "https://www.kodular.io", category: "development" },
+            { name: "MakeWithTech", url: "https://makewithtech.com", category: "development" },
+            { name: "Dropbox", url: "https://www.dropbox.com", category: "storage" },
+            { name: "Microsoft", url: "https://www.microsoft.com", category: "tech" },
+            { name: "TeamViewer", url: "https://www.teamviewer.com", category: "tech" },
+            { name: "ElevenLabs", url: "https://elevenlabs.io", category: "audio" },
+            { name: "Fiverr", url: "https://www.fiverr.com", category: "services" },
+            { name: "Lebara", url: "https://www.lebara.com", category: "services" },
+            { name: "Octopus Energy", url: "https://octopus.energy", category: "services" },
+            { name: "Virgin Media", url: "https://www.virginmedia.com", category: "services" },
+            { name: "PayPal", url: "https://www.paypal.com", category: "finance" },
+            { name: "Council Tax", url: "https://www.telford.gov.uk/info/20110/council_tax", category: "finance" },
+            { name: "Standard Life", url: "https://www.standardlife.co.uk", category: "finance" },
+            { name: "Trading212", url: "https://www.trading212.com", category: "finance" },
+            { name: "eToro", url: "https://www.etoro.com", category: "finance" },
+            { name: "Universal Credit", url: "https://www.gov.uk/universal-credit", category: "gov" },
+            { name: "DeepL", url: "https://www.deepl.com", category: "translation" },
+            { name: "Amazon Translate", url: "https://aws.amazon.com/translate/", category: "translation" },
+            { name: "Smartcat", url: "https://www.smartcat.com/", category: "translation" },
+            { name: "Bing Translator", url: "https://www.bing.com/translator", category: "translation" },
+            { name: "Surfshark", url: "https://surfshark.com", category: "security" },
+            { name: "TotalAV", url: "https://www.totalav.com", category: "security" },
+            { name: "QuillBot", url: "https://www.quillbot.com", category: "writing" },
+            { name: "Grammarly", url: "https://www.grammarly.com/", category: "writing" },
+            { name: "Ginger", url: "https://www.gingersoftware.com/", category: "writing" },
+            { name: "Hemingway", url: "http://www.hemingwayapp.com/", category: "writing" },
+            { name: "GrammarCheck", url: "https://www.grammarcheck.net/", category: "writing" },
+            { name: "Scribbr", url: "https://www.scribbr.com/", category: "writing" }
+        ];
+
+        // Favorites and Drag-Drop Management
+        const FAVORITES_KEY = 'favoriteLinks_v1';
+        const CUSTOM_ORDER_KEY = 'customOrder_v1';
+        const VISIT_STATS_KEY = 'visitStats_v1';
+        let favorites = new Set();
+        let customOrder = [];
+        let draggedElement = null;
+        let draggedIndex = null;
+        let visitStats = {}; // { url: { count: 0, lastVisit: timestamp } }
+
+        const CATEGORIES = [
+            { key: "all", label: "All", icon: "fa-th" },
+            { key: "email", label: "Email", icon: "fa-envelope" },
+            { key: "video", label: "Video", icon: "fa-video" },
+            { key: "social", label: "Social", icon: "fa-users" },
+            { key: "shopping", label: "Shopping", icon: "fa-shopping-cart" },
+            { key: "filme", label: "Filme", icon: "fa-film" },
+            { key: "fisiere", label: "Fisiere", icon: "fa-folder" },
+            { key: "ai", label: "AI", icon: "fa-robot" },
+            { key: "electronics", label: "Electronics", icon: "fa-microchip" },
+            { key: "development", label: "Development", icon: "fa-code" },
+            { key: "storage", label: "Storage", icon: "fa-database" },
+            { key: "tech", label: "Tech", icon: "fa-laptop" },
+            { key: "audio", label: "Audio", icon: "fa-music" },
+            { key: "services", label: "Services", icon: "fa-cogs" },
+            { key: "finance", label: "Finance", icon: "fa-coins" },
+            { key: "gov", label: "Gov", icon: "fa-landmark" },
+            { key: "translation", label: "Translation", icon: "fa-language" },
+            { key: "security", label: "Security", icon: "fa-shield-alt" },
+            { key: "writing", label: "Writing", icon: "fa-pen" }
+        ];
+
+        let currentFilter = 'all';
+        let sortByFrequency = true;
+
+        // Search History Management
+        const HISTORY_KEY = 'searchHistory_v1';
+        
+        function getSearchHistory() {
+            try {
+                const data = localStorage.getItem(HISTORY_KEY);
+                return data ? JSON.parse(data) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveSearchHistory(history) {
+            try {
+                localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+            } catch (e) {
+                console.error('Error saving search history:', e);
+            }
+        }
+
+        function addToSearchHistory(query) {
+            let history = getSearchHistory();
+            const existing = history.find(item => item.query.toLowerCase() === query.toLowerCase());
+            
+            if (existing) {
+                existing.count++;
+                existing.lastUsed = Date.now();
+            } else {
+                history.push({
+                    query: query,
+                    count: 1,
+                    lastUsed: Date.now()
+                });
+            }
+            
+            saveSearchHistory(history);
+            renderSearchHistory();
+        }
+
+        function renderSearchHistory() {
+            const container = document.getElementById('searchHistoryItems');
+            let history = getSearchHistory();
+            
+            if (history.length === 0) {
+                container.innerHTML = '<div style="color: var(--text-dim); text-align: center;">Nu există căutări recente</div>';
+                return;
+            }
+            
+            // Sort
+            if (sortByFrequency) {
+                history.sort((a, b) => b.count - a.count || b.lastUsed - a.lastUsed);
+            } else {
+                history.sort((a, b) => b.lastUsed - a.lastUsed);
+            }
+            
+            // Render top 10
+            const top10 = history.slice(0, 10);
+            container.innerHTML = top10.map(item => `
+                <div class="search-history-item" onclick="searchFromHistory('${item.query.replace(/'/g, "\\'")}')">
+                    ${item.query}
+                    <span class="search-count">${item.count}</span>
+                </div>
+            `).join('');
+        }
+
+        function searchFromHistory(query) {
+            document.getElementById('googleSearchInput').value = query;
+            performGoogleSearch();
+        }
+
+        function toggleSortMode() {
+            sortByFrequency = !sortByFrequency;
+            document.getElementById('sortButton').innerHTML = sortByFrequency 
+                ? '<i class="fas fa-sort-amount-down"></i> Sortare: Frecvență'
+                : '<i class="fas fa-clock"></i> Sortare: Recente';
+            renderSearchHistory();
+        }
+
+        function clearSearchHistory() {
+            if (confirm('Sigur vrei să ștergi istoricul căutărilor?')) {
+                localStorage.removeItem(HISTORY_KEY);
+                renderSearchHistory();
+            }
+        }
+
+        // Render tabs
+        // Populate category select
+        function populateCategorySelect() {
+            const sel = document.getElementById("siteCategory");
+            const editSel = document.getElementById("editSiteCategory");
+            
+            const options = '<option value="">-- Selectează Categoria --</option>' +
+                CATEGORIES.filter(c => c.key !== "all").map(c => 
+                    `<option value="${c.key}">${c.label}</option>`
+                ).join('');
+            
+            if (sel) sel.innerHTML = options;
+            if (editSel) editSel.innerHTML = options;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize theme system
+            loadTheme();
+            
+            // Initialize sound system
+            loadSoundSettings();
+            
+            // Load all links (includes custom + modifications)
+            const linksLoaded = loadAllLinks();
+            
+            // If no saved links, try to migrate from old format
+            if (!linksLoaded) {
+                loadCustomLinks(); // Migration from old format
+            }
+            
+            // Initialize favorites and custom order
+            loadFavorites();
+            loadCustomOrder();
+            loadVisitStats();
+            
+            // Initialize offline detection
+            initOfflineDetection();
+            
+            // Adjust search placeholder for mobile
+            adjustMobilePlaceholder();
+            
+            createParticles();
+            populateCategorySelect();
+            renderLinks(); // Now render with loaded links
+            renderSearchHistory();
+            updateClock();
+            checkServerStatus();
+            loadWeather();
+            setInterval(updateClock, 1000);
+            setInterval(checkServerStatus, 5000);
+
+            // Add typing sound to all text inputs
+            const inputs = document.querySelectorAll('input[type="text"]');
+            inputs.forEach(input => {
+                input.addEventListener('keydown', playTypingSound);
+            });
+            
+            // Add toggle sound to checkboxes
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', () => playSound('toggleSound', 0.3));
+            });
+            
+            // Add click sound to buttons
+            const buttons = document.querySelectorAll('button:not(#soundToggle)');
+            buttons.forEach(button => {
+                button.addEventListener('click', () => playSound('clickSound', 0.2));
+            });
+            
+            // Global keyboard capture for search
+            document.addEventListener('keydown', (e) => {
+                // Ignore if in modal, input, or textarea
+                const activeElement = document.activeElement;
+                const isInModal = document.querySelector('.modal.show') !== null;
+                const isInInput = activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA';
+                
+                // Escape key closes modals
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.modal.show').forEach(modal => {
+                        modal.classList.remove('show');
+                        playSound('thudSound', 0.2);
+                    });
+                    return;
+                }
+                
+                // If typing and not in modal or input, focus search
+                if (!isInModal && !isInInput && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                    const searchInput = document.getElementById('searchInput');
+                    if (searchInput && searchInput !== activeElement) {
+                        searchInput.focus();
+                        // Let the key event propagate naturally to the search input
+                    }
+                }
+            });
+        });
+
+        // ===== OFFLINE MODE DETECTION =====
+        function initOfflineDetection() {
+            const offlineIndicator = document.getElementById('offlineIndicator');
+            
+            function updateOnlineStatus() {
+                if (!navigator.onLine) {
+                    offlineIndicator.classList.add('show');
+                    console.log('📡 Offline mode activated');
+                } else {
+                    offlineIndicator.classList.remove('show');
+                    console.log('🌐 Back online');
+                }
+            }
+            
+            // Check initial status
+            updateOnlineStatus();
+            
+            // Listen for online/offline events
+            window.addEventListener('online', () => {
+                updateOnlineStatus();
+                showNotification('🌐 Back online!', 'success');
+            });
+            
+            window.addEventListener('offline', () => {
+                updateOnlineStatus();
+                showNotification('📡 Offline mode - Limited functionality', 'info');
+            });
+        }
+        
+        // Register Service Worker for offline support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(
+                    (registration) => {
+                        console.log('✅ Service Worker registered:', registration.scope);
+                    },
+                    (error) => {
+                        console.log('❌ Service Worker registration failed:', error);
+                    }
+                );
+            });
+        }
+
+        // Adjust search placeholder for mobile
+        function adjustMobilePlaceholder() {
+            const filterInput = document.getElementById('filterInput');
+            if (!filterInput) return;
+            
+            // Detect mobile
+            const isMobile = window.innerWidth <= 768 || 
+                           ('ontouchstart' in window) || 
+                           (navigator.maxTouchPoints > 0);
+            
+            if (isMobile) {
+                filterInput.placeholder = '🔍 Caută (ex: youtube, email)...';
+            }
+            
+            // Update on resize
+            window.addEventListener('resize', () => {
+                const isMobileNow = window.innerWidth <= 768;
+                if (isMobileNow) {
+                    filterInput.placeholder = '🔍 Caută (ex: youtube, email)...';
+                } else {
+                    filterInput.placeholder = '🔍 Caută site sau categorie (ex: email, filme, youtube)...';
+                }
+            });
+        }
+
+        // Create animated particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // Render links
+        function renderLinks() {
+            const grid = document.getElementById('linksGrid');
+            grid.innerHTML = '';
+
+            let filtered = currentFilter === 'all' 
+                ? links 
+                : links.filter(link => link.category === currentFilter);
+
+            // Sort: favorites first, then by custom order or original
+            filtered = filtered.sort((a, b) => {
+                const aUrl = a.url;
+                const bUrl = b.url;
+                const aFav = favorites.has(aUrl);
+                const bFav = favorites.has(bUrl);
+                
+                // Favorites always first
+                if (aFav && !bFav) return -1;
+                if (!aFav && bFav) return 1;
+                
+                // Within same favorite status, use custom order if exists
+                const aOrder = customOrder.indexOf(aUrl);
+                const bOrder = customOrder.indexOf(bUrl);
+                
+                if (aOrder !== -1 && bOrder !== -1) {
+                    return aOrder - bOrder;
+                }
+                if (aOrder !== -1) return -1;
+                if (bOrder !== -1) return 1;
+                
+                return 0;
+            });
+
+            filtered.forEach((link, index) => {
+                const domain = new URL(link.url).hostname;
+                const isFavorite = favorites.has(link.url);
+                
+                // Use custom icon if available, otherwise use Google favicon
+                const iconUrl = link.iconUrl || `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+                
+                const card = document.createElement('a');
+                card.href = link.url;
+                card.className = 'link-card';
+                card.dataset.name = link.name.toLowerCase();
+                card.dataset.category = link.category.toLowerCase();
+                card.dataset.url = link.url;
+                card.dataset.index = index;
+                card.target = '_blank';
+                card.draggable = true;
+                
+                // Click sound and track visit
+                card.addEventListener('click', (e) => {
+                    playSound('clickSound', 0.3);
+                    trackVisit(link.url);
+                });
+                
+                // Get visit stats
+                const stats = visitStats[link.url] || { count: 0, lastVisit: null };
+                const lastVisitText = stats.lastVisit 
+                    ? new Date(stats.lastVisit).toLocaleDateString('ro-RO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+                    : 'Niciodată';
+                
+                // Build preview HTML
+                const previewHTML = `
+                    <div class="link-card-preview">
+                        <div class="preview-url">${link.url}</div>
+                        <div class="preview-stats">
+                            <div class="preview-stat">
+                                <span class="preview-stat-label">Vizite</span>
+                                <span class="preview-stat-value">${stats.count}</span>
+                            </div>
+                            <div class="preview-stat">
+                                <span class="preview-stat-label">Ultima vizită</span>
+                                <span class="preview-stat-value">${lastVisitText}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                card.innerHTML = `
+                    ${isFavorite ? '<div class="favorite-star">⭐</div>' : ''}
+                    <div class="link-edit-btn" title="Editează" onclick="event.preventDefault(); event.stopPropagation(); openEditModal(${index});">✏️</div>
+                    <img src="${iconUrl}" 
+                         alt="${link.name}" 
+                         onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>'">
+                    <div class="link-name">${link.name}</div>
+                    ${previewHTML}
+                `;
+                
+                
+                // Edit button is now always visible on mobile - no long-press needed
+                
+                // Drag & Drop events
+                card.addEventListener('dragstart', handleDragStart);
+                card.addEventListener('dragover', handleDragOver);
+                card.addEventListener('drop', handleDrop);
+                card.addEventListener('dragend', handleDragEnd);
+                
+                // Context menu for favorites
+                card.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    toggleFavorite(link.url);
+                    return false;
+                });
+                grid.appendChild(card);
+            });
+        }
+
+        // ===== VISIT STATS TRACKING =====
+        function loadVisitStats() {
+            try {
+                const saved = localStorage.getItem(VISIT_STATS_KEY);
+                visitStats = saved ? JSON.parse(saved) : {};
+            } catch (e) {
+                visitStats = {};
+            }
+        }
+        
+        function saveVisitStats() {
+            try {
+                localStorage.setItem(VISIT_STATS_KEY, JSON.stringify(visitStats));
+            } catch (e) {
+                console.error('Error saving visit stats:', e);
+            }
+        }
+        
+        function trackVisit(url) {
+            if (!visitStats[url]) {
+                visitStats[url] = { count: 0, lastVisit: null };
+            }
+            visitStats[url].count++;
+            visitStats[url].lastVisit = Date.now();
+            saveVisitStats();
+        }
+
+        // ===== FAVORITES SYSTEM =====
+        function loadFavorites() {
+            try {
+                const saved = localStorage.getItem(FAVORITES_KEY);
+                favorites = saved ? new Set(JSON.parse(saved)) : new Set();
+            } catch (e) {
+                favorites = new Set();
+            }
+        }
+        
+        function saveFavorites() {
+            try {
+                localStorage.setItem(FAVORITES_KEY, JSON.stringify([...favorites]));
+            } catch (e) {
+                console.error('Error saving favorites:', e);
+            }
+        }
+        
+        function toggleFavorite(url) {
+            if (favorites.has(url)) {
+                favorites.delete(url);
+                playSound('thudSound', 0.3);
+                showNotification('⭐ Removed from favorites', 'info');
+            } else {
+                favorites.add(url);
+                playSound('permanentSound', 0.4);
+                showNotification('⭐ Added to favorites!', 'success');
+            }
+            saveFavorites();
+            renderLinks();
+        }
+
+        // ===== DRAG & DROP SYSTEM =====
+        function loadCustomOrder() {
+            try {
+                const saved = localStorage.getItem(CUSTOM_ORDER_KEY);
+                customOrder = saved ? JSON.parse(saved) : [];
+            } catch (e) {
+                customOrder = [];
+            }
+        }
+        
+        function saveCustomOrder() {
+            try {
+                localStorage.setItem(CUSTOM_ORDER_KEY, JSON.stringify(customOrder));
+            } catch (e) {
+                console.error('Error saving custom order:', e);
+            }
+        }
+        
+        function handleDragStart(e) {
+            draggedElement = e.target;
+            draggedIndex = parseInt(e.target.dataset.index);
+            e.target.style.opacity = '0.5';
+            e.dataTransfer.effectAllowed = 'move';
+            playSound('clickSound', 0.2);
+        }
+        
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            e.dataTransfer.dropEffect = 'move';
+            
+            const targetCard = e.target.closest('.link-card');
+            if (targetCard && targetCard !== draggedElement) {
+                targetCard.style.transform = 'scale(1.1)';
+            }
+            return false;
+        }
+        
+        function handleDrop(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+            
+            const targetCard = e.target.closest('.link-card');
+            if (targetCard && draggedElement && targetCard !== draggedElement) {
+                const draggedUrl = draggedElement.dataset.url;
+                const targetUrl = targetCard.dataset.url;
+                
+                // Update custom order
+                if (!customOrder.includes(draggedUrl)) {
+                    customOrder.push(draggedUrl);
+                }
+                if (!customOrder.includes(targetUrl)) {
+                    customOrder.push(targetUrl);
+                }
+                
+                const draggedOrderIndex = customOrder.indexOf(draggedUrl);
+                const targetOrderIndex = customOrder.indexOf(targetUrl);
+                
+                // Swap positions
+                customOrder[draggedOrderIndex] = targetUrl;
+                customOrder[targetOrderIndex] = draggedUrl;
+                
+                saveCustomOrder();
+                renderLinks();
+                playSound('toggleSound', 0.3);
+            }
+            
+            return false;
+        }
+        
+        function handleDragEnd(e) {
+            e.target.style.opacity = '1';
+            
+            // Remove all drag effects
+            document.querySelectorAll('.link-card').forEach(card => {
+                card.style.transform = '';
+            });
+            
+            draggedElement = null;
+            draggedIndex = null;
+        }
+
+        // Filter buttons
+        // ===== IMPROVED SEARCH WITH FUZZY MATCHING =====
+        function fuzzyMatch(str, pattern) {
+            // Simple fuzzy matching - allows for typos
+            if (!pattern) return true;
+            
+            str = str.toLowerCase();
+            pattern = pattern.toLowerCase();
+            
+            // Exact match or substring match gets priority
+            if (str.includes(pattern)) return true;
+            
+            // Fuzzy match - allows skipping characters
+            let patternIdx = 0;
+            for (let i = 0; i < str.length && patternIdx < pattern.length; i++) {
+                if (str[i] === pattern[patternIdx]) {
+                    patternIdx++;
+                }
+            }
+            
+            return patternIdx === pattern.length;
+        }
+        
+        function filterButtons() {
+            const query = document.getElementById('filterInput').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.link-card');
+            
+            if (query === '') {
+                // Show all cards
+                cards.forEach(card => card.classList.remove('hidden'));
+                return;
+            }
+            
+            cards.forEach(card => {
+                const name = card.dataset.name;
+                const category = card.dataset.category;
+                const url = card.dataset.url ? card.dataset.url.toLowerCase() : '';
+                
+                // Check if query matches name, category, or URL
+                const matchesName = fuzzyMatch(name, query);
+                const matchesCategory = fuzzyMatch(category, query);
+                const matchesUrl = url.includes(query);
+                
+                if (matchesName || matchesCategory || matchesUrl) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
+        // Filter links by category (not used anymore, kept for compatibility)
+        function filterLinks(category) {
+            currentFilter = category;
+            renderLinks();
+        }
+
+        // Google Search
+        function performGoogleSearch() {
+            const query = document.getElementById('googleSearchInput').value.trim();
+            if (!query) return;
+
+            addToSearchHistory(query);
+
+            if (query.startsWith('http://') || query.startsWith('https://')) {
+                window.open(query, '_blank');
+            } else {
+                window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+            }
+            document.getElementById('googleSearchInput').value = '';
+        }
+
+        // Clock
+        function updateClock() {
+            const now = new Date();
+            
+            // Main time display (large)
+            const time = now.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('mainTime').textContent = time;
+            
+            // Full date display
+            const fullDateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('fullDateMain').textContent = now.toLocaleDateString('ro-RO', fullDateOptions);
+            
+            // Day name
+            const daysRo = ['Duminică', 'Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri', 'Sâmbătă'];
+            document.getElementById('dayNameMain').textContent = daysRo[now.getDay()];
+            
+            // Week number (ISO 8601)
+            function getWeekNumber(d) {
+                d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+                d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+                const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+                const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+                return weekNo;
+            }
+            const weekNumber = getWeekNumber(now);
+            document.getElementById('weekNumMain').textContent = `SĂPTĂMÂNĂ ${weekNumber}`;
+            
+            // Day of year
+            const start = new Date(now.getFullYear(), 0, 0);
+            const diff = now - start;
+            const oneDay = 1000 * 60 * 60 * 24;
+            const dayOfYear = Math.floor(diff / oneDay);
+            document.getElementById('dayOfYearMain').textContent = `Ziua ${dayOfYear}`;
+            
+            // Year
+            document.getElementById('yearMain').textContent = now.getFullYear();
+            
+            // Update modal clock if it's open
+            if (document.getElementById('clockModal').classList.contains('show')) {
+                updateClockModal(now);
+            }
+        }
+
+        function updateClockModal(date = new Date()) {
+            // Time
+            document.getElementById('modalClockTime').textContent = date.toLocaleTimeString('ro-RO');
+            
+            // Full date
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('fullDate').textContent = date.toLocaleDateString('ro-RO', options);
+            
+            // Day of week
+            const daysRo = ['Duminică', 'Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri', 'Sâmbătă'];
+            document.getElementById('dayOfWeek').textContent = daysRo[date.getDay()];
+            
+            // Day of year
+            const start = new Date(date.getFullYear(), 0, 0);
+            const diff = date - start;
+            const oneDay = 1000 * 60 * 60 * 24;
+            const dayOfYear = Math.floor(diff / oneDay);
+            document.getElementById('dayOfYear').textContent = dayOfYear;
+            
+            // Week number (ISO 8601)
+            function getWeekNumber(d) {
+                // Copy date so don't modify original
+                d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+                // Set to nearest Thursday: current date + 4 - current day number
+                // Make Sunday's day number 7
+                d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+                // Get first day of year
+                const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+                // Calculate full weeks to nearest Thursday
+                const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+                return weekNo;
+            }
+            
+            const weekNumber = getWeekNumber(date);
+            document.getElementById('weekNumber').textContent = `Săptămâna ${weekNumber}`;
+            
+            // Timezone
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            document.getElementById('timezone').textContent = timezone;
+            
+            // UTC Offset
+            const offset = -date.getTimezoneOffset();
+            const hours = Math.floor(Math.abs(offset) / 60);
+            const minutes = Math.abs(offset) % 60;
+            const sign = offset >= 0 ? '+' : '-';
+            document.getElementById('utcOffset').textContent = `UTC${sign}${hours}:${minutes.toString().padStart(2, '0')}`;
+        }
+
+        function toggleClockModal() {
+            const modal = document.getElementById('clockModal');
+            if (modal.classList.contains('show')) {
+                closeClockModal();
+            } else {
+                playSound('bleepSound', 0.3);
+                modal.classList.add('show');
+                updateClockModal();
+            }
+        }
+
+        function closeClockModal() {
+            playSound('thudSound', 0.2);
+            document.getElementById('clockModal').classList.remove('show');
+        }
+
+        // Server Status
+        let lastServerCheck = null;
+        let serverOnline = false;
+        let previousServerStatus = null;
+        let serverStartTime = null;
+        
+        // Server config and stats
+        const SERVER_CONFIG_KEY = 'serverConfig_v1';
+        const SERVER_STATS_KEY = 'serverStats_v1';
+        
+        function getServerConfig() {
+            try {
+                const data = localStorage.getItem(SERVER_CONFIG_KEY);
+                return data ? JSON.parse(data) : {
+                    url: 'localhost:8899',
+                    endpoint: '/online',
+                    notifications: true,
+                    notificationSound: true
+                };
+            } catch (e) {
+                return {
+                    url: 'localhost:8899',
+                    endpoint: '/online',
+                    notifications: true,
+                    notificationSound: true
+                };
+            }
+        }
+        
+        function saveServerConfig(config) {
+            try {
+                localStorage.setItem(SERVER_CONFIG_KEY, JSON.stringify(config));
+            } catch (e) {
+                console.error('Error saving server config:', e);
+            }
+        }
+        
+        function getServerStats() {
+            try {
+                const data = localStorage.getItem(SERVER_STATS_KEY);
+                return data ? JSON.parse(data) : {
+                    totalChecks: 0,
+                    onlineChecks: 0,
+                    offlineChecks: 0,
+                    lastOnline: null,
+                    totalUptime: 0
+                };
+            } catch (e) {
+                return {
+                    totalChecks: 0,
+                    onlineChecks: 0,
+                    offlineChecks: 0,
+                    lastOnline: null,
+                    totalUptime: 0
+                };
+            }
+        }
+        
+        function saveServerStats(stats) {
+            try {
+                localStorage.setItem(SERVER_STATS_KEY, JSON.stringify(stats));
+            } catch (e) {
+                console.error('Error saving server stats:', e);
+            }
+        }
+        
+        function playNotificationBeep() {
+            try {
+                // Create a beep sound using Web Audio API
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } catch (e) {
+                console.error('Error playing notification sound:', e);
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: linear-gradient(135deg, ${type === 'success' ? 'var(--success)' : type === 'error' ? 'var(--danger)' : 'var(--primary)'}, var(--secondary));
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0, 212, 255, 0.5);
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        async function checkServerStatus() {
+            const config = getServerConfig();
+            const stats = getServerStats();
+            
+            try {
+                const url = config.url.startsWith('http') ? config.url : `http://${config.url}`;
+                const response = await fetch(`${url}${config.endpoint}`);
+                const data = await response.json();
+                serverOnline = data.online || response.ok;
+                lastServerCheck = new Date();
+                
+                // Update stats
+                stats.totalChecks++;
+                if (serverOnline) {
+                    stats.onlineChecks++;
+                    if (!serverStartTime) {
+                        serverStartTime = Date.now();
+                    }
+                    stats.lastOnline = Date.now();
+                } else {
+                    stats.offlineChecks++;
+                    if (serverStartTime) {
+                        stats.totalUptime += (Date.now() - serverStartTime) / 1000;
+                        serverStartTime = null;
+                    }
+                }
+                saveServerStats(stats);
+                
+                // Check for status change and notify
+                if (previousServerStatus !== null && previousServerStatus !== serverOnline && config.notifications) {
+                    if (serverOnline) {
+                        showNotification('🟢 Server acum online!', 'success');
+                        if (config.notificationSound) {
+                            playNotificationBeep();
+                        }
+                    } else {
+                        showNotification('🔴 Server acum offline!', 'error');
+                        if (config.notificationSound) {
+                            playNotificationBeep();
+                        }
+                    }
+                }
+                previousServerStatus = serverOnline;
+                
+                if (serverOnline) {
+                    document.getElementById('serverStatus').innerHTML = 'Server: Online';
+                    document.querySelector('.status-dot').style.background = 'var(--success)';
+                } else {
+                    document.getElementById('serverStatus').innerHTML = 'Server: Offline';
+                    document.querySelector('.status-dot').style.background = 'var(--danger)';
+                }
+            } catch (error) {
+                serverOnline = false;
+                lastServerCheck = new Date();
+                
+                // Update stats
+                stats.totalChecks++;
+                stats.offlineChecks++;
+                if (serverStartTime) {
+                    stats.totalUptime += (Date.now() - serverStartTime) / 1000;
+                    serverStartTime = null;
+                }
+                saveServerStats(stats);
+                
+                // Check for status change and notify
+                if (previousServerStatus !== null && previousServerStatus !== serverOnline && config.notifications) {
+                    showNotification('🔴 Server acum offline!', 'error');
+                    if (config.notificationSound) {
+                        playNotificationBeep();
+                    }
+                }
+                previousServerStatus = serverOnline;
+                
+                document.getElementById('serverStatus').innerHTML = 'Server: Offline';
+                document.querySelector('.status-dot').style.background = 'var(--danger)';
+            }
+        }
+
+        function formatUptime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+            
+            if (hours > 0) {
+                return `${hours}h ${minutes}m ${secs}s`;
+            } else if (minutes > 0) {
+                return `${minutes}m ${secs}s`;
+            } else {
+                return `${secs}s`;
+            }
+        }
+
+        function updateServerModal() {
+            const config = getServerConfig();
+            const stats = getServerStats();
+            const modal = document.getElementById('serverModal');
+            
+            // Update config display
+            document.getElementById('configuredServerUrl').textContent = config.url;
+            document.getElementById('configuredEndpoint').textContent = config.endpoint;
+            
+            if (serverOnline) {
+                document.getElementById('modalServerIcon').textContent = '✅';
+                document.getElementById('modalServerStatus').textContent = 'Server Online';
+                document.getElementById('modalServerStatus').style.color = 'var(--success)';
+                document.getElementById('serverStatusDetail').textContent = 'Connected';
+                document.getElementById('serverStatusDetail').style.color = 'var(--success)';
+            } else {
+                document.getElementById('modalServerIcon').textContent = '❌';
+                document.getElementById('modalServerStatus').textContent = 'Server Offline';
+                document.getElementById('modalServerStatus').style.color = 'var(--danger)';
+                document.getElementById('serverStatusDetail').textContent = 'Disconnected';
+                document.getElementById('serverStatusDetail').style.color = 'var(--danger)';
+            }
+            
+            if (lastServerCheck) {
+                document.getElementById('lastCheck').textContent = lastServerCheck.toLocaleTimeString('ro-RO');
+            }
+            
+            // Calculate current uptime
+            let currentUptime = stats.totalUptime;
+            if (serverStartTime && serverOnline) {
+                currentUptime += (Date.now() - serverStartTime) / 1000;
+            }
+            
+            document.getElementById('serverUptime').textContent = formatUptime(currentUptime);
+            document.getElementById('totalChecks').textContent = stats.totalChecks;
+        }
+
+        function toggleServerModal() {
+            const modal = document.getElementById('serverModal');
+            if (modal.classList.contains('show')) {
+                closeServerModal();
+            } else {
+                playSound('bleepSound', 0.3);
+                modal.classList.add('show');
+                updateServerModal();
+            }
+        }
+
+        function closeServerModal() {
+            playSound('thudSound', 0.2);
+            document.getElementById('serverModal').classList.remove('show');
+        }
+        
+        function openServerSettings() {
+            const config = getServerConfig();
+            const stats = getServerStats();
+            
+            document.getElementById('settingsServerUrl').value = config.url;
+            document.getElementById('settingsEndpoint').value = config.endpoint;
+            document.getElementById('settingsNotifications').checked = config.notifications;
+            document.getElementById('settingsNotificationSound').checked = config.notificationSound;
+            
+            document.getElementById('statsChecks').textContent = stats.totalChecks;
+            document.getElementById('statsOnline').textContent = stats.onlineChecks;
+            document.getElementById('statsOffline').textContent = stats.offlineChecks;
+            
+            closeServerModal();
+            playSound('bleepSound', 0.3);
+            document.getElementById('serverSettingsModal').classList.add('show');
+        }
+        
+        function closeServerSettings() {
+            playSound('thudSound', 0.2);
+            document.getElementById('serverSettingsModal').classList.remove('show');
+        }
+        
+        function saveServerSettings() {
+            const config = {
+                url: document.getElementById('settingsServerUrl').value.trim(),
+                endpoint: document.getElementById('settingsEndpoint').value.trim(),
+                notifications: document.getElementById('settingsNotifications').checked,
+                notificationSound: document.getElementById('settingsNotificationSound').checked
+            };
+            
+            if (!config.url) {
+                alert('Te rog introdu un URL valid!');
+                return;
+            }
+            
+            if (!config.endpoint) {
+                config.endpoint = '/online';
+            }
+            
+            playSound('permanentSound', 0.4);
+            saveServerConfig(config);
+            closeServerSettings();
+            showNotification('✅ Setări salvate cu succes!', 'success');
+            
+            // Recheck server with new settings
+            checkServerStatus();
+        }
+        
+        function resetServerStats() {
+            if (confirm('Sigur vrei să resetezi toate statisticile?')) {
+                const stats = {
+                    totalChecks: 0,
+                    onlineChecks: 0,
+                    offlineChecks: 0,
+                    lastOnline: null,
+                    totalUptime: 0
+                };
+                saveServerStats(stats);
+                serverStartTime = null;
+                
+                document.getElementById('statsChecks').textContent = '0';
+                document.getElementById('statsOnline').textContent = '0';
+                document.getElementById('statsOffline').textContent = '0';
+                
+                showNotification('📊 Statistici resetate!', 'info');
+            }
+        }
+
+        // Weather
+        // Weather
+        let weatherData = null;
+
+        const WEATHER_LOC_CACHE_KEY = "weatherLocCache_v2";
+        const WEATHER_DATA_CACHE_KEY = "weatherDataCache_v2";
+
+        function _safeJSONParse(s) {
+            try { return JSON.parse(s); } catch { return null; }
+        }
+
+        function _nowIso() {
+            return new Date().toISOString();
+        }
+
+        function _fmtTimeShort(d = new Date()) {
+            return d.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function _degToCompass(deg) {
+            if (typeof deg !== "number" || Number.isNaN(deg)) return "";
+            const dirs = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
+            return dirs[Math.round(deg / 22.5) % 16];
+        }
+
+        function _weatherCodeToRo(code) {
+            // Open-Meteo weather codes (simplified Romanian mapping)
+            const m = {
+                0: "Senin",
+                1: "Mai mult senin",
+                2: "Parțial noros",
+                3: "Înnorat",
+                45: "Ceață",
+                48: "Ceață cu depuneri",
+                51: "Burniță slabă",
+                53: "Burniță",
+                55: "Burniță puternică",
+                56: "Burniță înghețată slabă",
+                57: "Burniță înghețată",
+                61: "Ploaie slabă",
+                63: "Ploaie",
+                65: "Ploaie puternică",
+                66: "Ploaie înghețată slabă",
+                67: "Ploaie înghețată",
+                71: "Ninsoare slabă",
+                73: "Ninsoare",
+                75: "Ninsoare puternică",
+                77: "Măzăriche",
+                80: "Averse slabe",
+                81: "Averse",
+                82: "Averse puternice",
+                85: "Averse de ninsoare slabe",
+                86: "Averse de ninsoare",
+                95: "Furtună",
+                96: "Furtună cu grindină",
+                99: "Furtună cu grindină puternică"
+            };
+            return m[code] || "Vreme variabilă";
+        }
+
+        async function getBestLocation(force = false) {
+            // 1) cache (6h)
+            try {
+                const cached = _safeJSONParse(localStorage.getItem(WEATHER_LOC_CACHE_KEY) || "");
+                if (!force && cached && cached.lat && cached.lon && cached.ts) {
+                    const ageMs = Date.now() - new Date(cached.ts).getTime();
+                    if (ageMs >= 0 && ageMs < 6 * 60 * 60 * 1000) return cached;
+                }
+            } catch {}
+
+            // 2) GPS (best precision)
+            try {
+                if (navigator.geolocation) {
+                    const pos = await new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(resolve, reject, {
+                            enableHighAccuracy: true,
+                            timeout: 8000,
+                            maximumAge: 5 * 60 * 1000
+                        });
+                    });
+                    const loc = {
+                        lat: Number(pos.coords.latitude),
+                        lon: Number(pos.coords.longitude),
+                        label: "Locația ta (GPS)",
+                        source: "gps",
+                        ts: _nowIso()
+                    };
+                    localStorage.setItem(WEATHER_LOC_CACHE_KEY, JSON.stringify(loc));
+                    return loc;
+                }
+            } catch (e) {
+                console.warn("Geolocation not available/denied:", e);
+            }
+
+            // 3) IP-based fallback (good enough if GPS denied)
+            try {
+                const r = await fetch("https://ipapi.co/json/", { cache: "no-store" });
+                if (r.ok) {
+                    const j = await r.json();
+                    const loc = {
+                        lat: Number(j.latitude),
+                        lon: Number(j.longitude),
+                        label: [j.city, j.region, j.country_name].filter(Boolean).join(", "),
+                        source: "ip",
+                        ts: _nowIso()
+                    };
+                    if (loc.lat && loc.lon) {
+                        localStorage.setItem(WEATHER_LOC_CACHE_KEY, JSON.stringify(loc));
+                        return loc;
+                    }
+                }
+            } catch (e) {
+                console.warn("IP location failed:", e);
+            }
+
+            // 4) hard fallback
+            return { lat: 52.7073, lon: -2.7547, label: "Shropshire, UK", source: "fallback", ts: _nowIso() };
+        }
+
+        async function fetchWttr(lat, lon, signal) {
+            const url = `https://wttr.in/${lat},${lon}?format=j1`;
+            const res = await fetch(url, { signal, headers: { "Accept": "application/json" } });
+            if (!res.ok) throw new Error(`wttr HTTP ${res.status}`);
+            return await res.json();
+        }
+
+        function normalizeFromWttr(data) {
+            const current = data?.current_condition?.[0];
+            const astronomy = data?.weather?.[0]?.astronomy?.[0];
+            const area = data?.nearest_area?.[0];
+            const locParts = [
+                area?.areaName?.[0]?.value,
+                area?.region?.[0]?.value,
+                area?.country?.[0]?.value
+            ].filter(Boolean);
+            const location = locParts.join(", ");
+
+            return {
+                source: "wttr.in",
+                location: location || "Locația ta",
+                tempC: Number(current?.temp_C ?? NaN),
+                feelsLikeC: Number(current?.FeelsLikeC ?? NaN),
+                humidity: Number(current?.humidity ?? NaN),
+                windKmh: Number(current?.windspeedKmph ?? NaN),
+                windDir: (current?.winddir16Point || "").trim(),
+                pressureHpa: Number(current?.pressure ?? NaN),
+                visibilityKm: Number(current?.visibility ?? NaN),
+                cloudcover: Number(current?.cloudcover ?? NaN),
+                description: (current?.weatherDesc?.[0]?.value || "").trim() || "Vreme variabilă",
+                sunrise: astronomy?.sunrise || "--:--",
+                sunset: astronomy?.sunset || "--:--",
+                updatedAtIso: _nowIso()
+            };
+        }
+
+        async function fetchOpenMeteo(lat, lon, signal) {
+            const url =
+                `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}` +
+                `&current=temperature_2m,relative_humidity_2m,apparent_temperature,pressure_msl,cloud_cover,wind_speed_10m,wind_direction_10m,weather_code` +
+                `&daily=sunrise,sunset&timezone=auto`;
+            const res = await fetch(url, { signal, headers: { "Accept": "application/json" } });
+            if (!res.ok) throw new Error(`open-meteo HTTP ${res.status}`);
+            return await res.json();
+        }
+
+        function normalizeFromOpenMeteo(data, fallbackLabel = "") {
+            const c = data?.current || {};
+            const sunriseIso = data?.daily?.sunrise?.[0];
+            const sunsetIso = data?.daily?.sunset?.[0];
+
+            const sunrise = sunriseIso ? new Date(sunriseIso).toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' }) : "--:--";
+            const sunset = sunsetIso ? new Date(sunsetIso).toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' }) : "--:--";
+
+            const code = Number(c.weather_code ?? NaN);
+            const desc = _weatherCodeToRo(code);
+
+            const windDir = _degToCompass(Number(c.wind_direction_10m ?? NaN));
+
+            return {
+                source: "open-meteo.com",
+                location: (fallbackLabel || "Locația ta").trim(),
+                tempC: Number(c.temperature_2m ?? NaN),
+                feelsLikeC: Number(c.apparent_temperature ?? NaN),
+                humidity: Number(c.relative_humidity_2m ?? NaN),
+                windKmh: Number(c.wind_speed_10m ?? NaN),
+                windDir,
+                pressureHpa: Number(c.pressure_msl ?? NaN),
+                visibilityKm: NaN,
+                cloudcover: Number(c.cloud_cover ?? NaN),
+                description: desc,
+                sunrise,
+                sunset,
+                updatedAtIso: _nowIso()
+            };
+        }
+
+        function applyWeatherToUI(w) {
+            if (!w) return;
+            weatherData = w;
+
+            // Header line
+            const main = (Number.isFinite(w.tempC) ? `${Math.round(w.tempC)}°C` : "--°C") + " - " + (w.description || "Vreme");
+            const weatherEl = document.getElementById("weather");
+            if (weatherEl) weatherEl.textContent = main;
+
+            const locMini = document.getElementById("weatherLocationMini");
+            if (locMini) locMini.textContent = w.location || "--";
+
+            updateWeatherModal(w);
+
+            // Cache weather data (15 min)
+            try {
+                localStorage.setItem(WEATHER_DATA_CACHE_KEY, JSON.stringify({ ...w, ts: _nowIso() }));
+            } catch {}
+        }
+
+        async function loadWeather(force = false) {
+            const weatherEl = document.getElementById("weather");
+            const locMini = document.getElementById("weatherLocationMini");
+
+            if (weatherEl) weatherEl.textContent = "Se încarcă...";
+            if (locMini) locMini.textContent = "Localizare...";
+
+            // If offline, try cache immediately
+            if (!navigator.onLine) {
+                const cached = _safeJSONParse(localStorage.getItem(WEATHER_DATA_CACHE_KEY) || "");
+                if (cached) {
+                    cached.source = (cached.source || "cache") + " (offline)";
+                    applyWeatherToUI(cached);
+                    return;
+                }
+            }
+
+            const loc = await getBestLocation(force);
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+            try {
+                // Try wttr.in first (keeps same style + returns nearest_area for exact city)
+                const wttr = await fetchWttr(loc.lat, loc.lon, controller.signal);
+                const normalized = normalizeFromWttr(wttr);
+
+                // If we only had a generic label, prefer wttr nearest-area label
+                if (normalized.location && normalized.location !== "Locația ta") {
+                    try {
+                        const cachedLoc = { ...loc, label: normalized.location, ts: _nowIso() };
+                        localStorage.setItem(WEATHER_LOC_CACHE_KEY, JSON.stringify(cachedLoc));
+                    } catch {}
+                }
+
+                applyWeatherToUI(normalized);
+            } catch (error) {
+                console.warn("Weather (wttr) failed, trying open-meteo:", error);
+
+                try {
+                    const om = await fetchOpenMeteo(loc.lat, loc.lon, controller.signal);
+                    const normalized = normalizeFromOpenMeteo(om, loc.label || "");
+                    applyWeatherToUI(normalized);
+                } catch (error2) {
+                    console.error("Weather (open-meteo) failed:", error2);
+
+                    // Last resort: demo data or cached
+                    const cached = _safeJSONParse(localStorage.getItem(WEATHER_DATA_CACHE_KEY) || "");
+                    if (cached) {
+                        cached.source = (cached.source || "cache") + " (cache)";
+                        applyWeatherToUI(cached);
+                    } else {
+                        useDemoWeatherData();
+                    }
+                }
+            } finally {
+                clearTimeout(timeoutId);
+            }
+        }
+
+        function useDemoWeatherData() {
+            console.log('Using demo weather data');
+            const demo = {
+                source: "demo",
+                location: "Demo",
+                tempC: 3,
+                feelsLikeC: -1,
+                humidity: 82,
+                windKmh: 13,
+                windDir: "NE",
+                pressureHpa: 1033,
+                visibilityKm: 10,
+                cloudcover: 25,
+                description: "Senin",
+                sunrise: "08:21",
+                sunset: "15:59",
+                updatedAtIso: _nowIso()
+            };
+            applyWeatherToUI(demo);
+        }
+
+        function updateWeatherModal(w) {
+            if (!w) return;
+
+            try {
+                // Main temperature
+                document.getElementById('modalMainTemp').textContent = Number.isFinite(w.tempC) ? `${Math.round(w.tempC)}°C` : '--°C';
+                document.getElementById('modalLocation').textContent = w.location || 'Locație necunoscută';
+                document.getElementById('modalDescription').textContent = w.description || '--';
+
+                const updated = w.updatedAtIso ? new Date(w.updatedAtIso) : new Date();
+                const updLine = `Actualizat: ${_fmtTimeShort(updated)} • Sursă: ${w.source || "—"}`;
+                const updEl = document.getElementById('modalUpdated');
+                if (updEl) updEl.textContent = updLine;
+
+                // Detailed info
+                document.getElementById('feelsLike').textContent = Number.isFinite(w.feelsLikeC) ? `${Math.round(w.feelsLikeC)}°C` : '--°C';
+                document.getElementById('humidity').textContent = Number.isFinite(w.humidity) ? `${Math.round(w.humidity)}%` : '--%';
+
+                const windParts = [];
+                if (Number.isFinite(w.windKmh)) windParts.push(`${Math.round(w.windKmh)} km/h`);
+                if (w.windDir) windParts.push(w.windDir);
+                document.getElementById('wind').textContent = windParts.length ? windParts.join(" ") : '-- km/h';
+
+                document.getElementById('pressure').textContent = Number.isFinite(w.pressureHpa) ? `${Math.round(w.pressureHpa)} hPa` : '-- hPa';
+                document.getElementById('visibility').textContent = Number.isFinite(w.visibilityKm) ? `${Math.round(w.visibilityKm)} km` : '-- km';
+                document.getElementById('sunrise').textContent = w.sunrise || '--:--';
+                document.getElementById('sunset').textContent = w.sunset || '--:--';
+                document.getElementById('cloudcover').textContent = Number.isFinite(w.cloudcover) ? `${Math.round(w.cloudcover)}%` : '--%';
+            } catch (error) {
+                console.error('Error updating weather modal:', error);
+            }
+        }
+
+        function toggleWeatherModal() {
+            const modal = document.getElementById('weatherModal');
+            if (modal.classList.contains('show')) {
+                closeWeatherModal();
+            } else {
+                playSound('bleepSound', 0.3);
+                modal.classList.add('show');
+                if (weatherData) {
+                    updateWeatherModal(weatherData);
+                } else {
+                    // Try to load weather again if it failed before
+                    document.getElementById('modalMainTemp').textContent = 'Loading...';
+                    document.getElementById('modalDescription').textContent = 'Fetching weather data...';
+                    const updEl = document.getElementById('modalUpdated');
+                    if (updEl) updEl.textContent = '';
+                    loadWeather(false);
+                }
+            }
+        }
+
+        function closeWeatherModal() {
+            playSound('thudSound', 0.2);
+            document.getElementById('weatherModal').classList.remove('show');
+        }
+
+        // Modal functions
+        function openAddModal() {
+            playSound('bleepSound', 0.3);
+            document.getElementById('addModal').classList.add('show');
+        }
+
+        function closeAddModal() {
+            playSound('thudSound', 0.2);
+            document.getElementById('addModal').classList.remove('show');
+            document.getElementById('siteName').value = '';
+            document.getElementById('siteUrl').value = '';
+            document.getElementById('siteCategory').value = '';
+        }
+
+        function addSite() {
+            const name = document.getElementById('siteName').value.trim();
+            const url = document.getElementById('siteUrl').value.trim();
+            const category = document.getElementById('siteCategory').value;
+
+            if (!name || !url || !category) {
+                alert('⚠️ Te rog completează toate câmpurile!');
+                return;
+            }
+
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                alert('🔗 URL-ul trebuie să înceapă cu http:// sau https://');
+                return;
+            }
+
+            playSound('permanentSound', 0.4);
+            links.push({ 
+                name, 
+                url, 
+                category,
+                iconUrl: null,
+                tags: null,
+                notes: null
+            });
+            saveAllLinks(); // Use new save function
+            renderLinks();
+            closeAddModal();
+            showNotification('✅ Site adăugat cu succes!');
+        }
+
+        // ===== EDIT SITE MODAL =====
+        let currentEditIndex = null;
+
+        function openEditModal(index) {
+            currentEditIndex = index;
+            const link = links[index];
+            
+            if (!link) {
+                alert('Eroare: Site-ul nu a fost găsit!');
+                return;
+            }
+            
+            // Pre-fill form
+            document.getElementById('editSiteName').value = link.name || '';
+            document.getElementById('editSiteUrl').value = link.url || '';
+            document.getElementById('editIconUrl').value = link.iconUrl || '';
+            document.getElementById('editSiteCategory').value = link.category || '';
+            document.getElementById('editSiteTags').value = link.tags || '';
+            document.getElementById('editSiteNotes').value = link.notes || '';
+            
+            playSound('bleepSound', 0.3);
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        function closeEditModal() {
+            playSound('thudSound', 0.2);
+            document.getElementById('editModal').classList.remove('show');
+            currentEditIndex = null;
+            document.getElementById('editSiteName').value = '';
+            document.getElementById('editSiteUrl').value = '';
+            document.getElementById('editIconUrl').value = '';
+            document.getElementById('editSiteCategory').value = '';
+            document.getElementById('editSiteTags').value = '';
+            document.getElementById('editSiteNotes').value = '';
+        }
+
+        function saveEditSite() {
+            if (currentEditIndex === null) {
+                alert('Eroare: Nu s-a găsit site-ul de editat!');
+                return;
+            }
+
+            const newName = document.getElementById('editSiteName').value.trim();
+            const newUrl = document.getElementById('editSiteUrl').value.trim();
+            const newIconUrl = document.getElementById('editIconUrl').value.trim();
+            const newCategory = document.getElementById('editSiteCategory').value;
+            const newTags = document.getElementById('editSiteTags').value.trim();
+            const newNotes = document.getElementById('editSiteNotes').value.trim();
+
+            if (!newName || !newUrl || !newCategory) {
+                alert('Te rog completează câmpurile obligatorii (Nume, URL, Categorie)!');
+                return;
+            }
+
+            if (!newUrl.startsWith('http://') && !newUrl.startsWith('https://')) {
+                alert('URL-ul trebuie să înceapă cu http:// sau https://');
+                return;
+            }
+
+            const oldUrl = links[currentEditIndex].url;
+            
+            // Update link with all fields
+            links[currentEditIndex] = { 
+                name: newName, 
+                url: newUrl, 
+                iconUrl: newIconUrl || null,
+                category: newCategory,
+                tags: newTags || null,
+                notes: newNotes || null
+            };
+
+            // Update favorites if URL changed
+            if (oldUrl !== newUrl && favorites.has(oldUrl)) {
+                favorites.delete(oldUrl);
+                favorites.add(newUrl);
+                saveFavorites();
+            }
+
+            // Update custom order if URL changed
+            if (oldUrl !== newUrl) {
+                const orderIndex = customOrder.indexOf(oldUrl);
+                if (orderIndex !== -1) {
+                    customOrder[orderIndex] = newUrl;
+                    saveCustomOrder();
+                }
+            }
+
+            // Update visit stats if URL changed
+            if (oldUrl !== newUrl && visitStats[oldUrl]) {
+                visitStats[newUrl] = visitStats[oldUrl];
+                delete visitStats[oldUrl];
+                saveVisitStats();
+            }
+
+            playSound('permanentSound', 0.4);
+            saveAllLinks(); // Save ALL links including modified originals
+            renderLinks();
+            closeEditModal();
+            showNotification('✅ Site actualizat cu succes!', 'success');
+        }
+
+        function deleteSite() {
+            if (currentEditIndex === null) {
+                alert('❌ Eroare: Nu s-a găsit site-ul de șters!');
+                return;
+            }
+
+            // Check if it's a custom link (can only delete custom links)
+            if (currentEditIndex < ORIGINAL_COUNT) {
+                alert('🔒 Nu poți șterge site-urile predefinite! Poți doar să le editezi.');
+                return;
+            }
+
+            if (!confirm('⚠️ Sigur vrei să ștergi acest site?\n\n🗑️ Această acțiune nu poate fi anulată!')) {
+                return;
+            }
+
+            const url = links[currentEditIndex].url;
+
+            // Remove from links
+            links.splice(currentEditIndex, 1);
+
+            // Remove from favorites
+            if (favorites.has(url)) {
+                favorites.delete(url);
+                saveFavorites();
+            }
+
+            // Remove from custom order
+            const orderIndex = customOrder.indexOf(url);
+            if (orderIndex !== -1) {
+                customOrder.splice(orderIndex, 1);
+                saveCustomOrder();
+            }
+
+            // Remove from visit stats
+            if (visitStats[url]) {
+                delete visitStats[url];
+                saveVisitStats();
+            }
+
+            playSound('thudSound', 0.3);
+            saveAllLinks(); // Save updated links
+            renderLinks();
+            closeEditModal();
+            showNotification('🗑️ Site șters cu succes!', 'info');
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: linear-gradient(135deg, var(--primary), var(--secondary));
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0, 212, 255, 0.5);
+                z-index: 10000;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // LocalStorage functions - COMPREHENSIVE SAVE/LOAD
+        const ALL_LINKS_KEY = "allLinks_v3";  // New key for all links including modifications
+        const ORIGINAL_COUNT = 67;
+
+        function saveAllLinks() {
+            try {
+                // Save ALL links (original + custom + modifications)
+                localStorage.setItem(ALL_LINKS_KEY, JSON.stringify(links));
+                console.log('✅ Saved', links.length, 'links to localStorage');
+            } catch (e) {
+                console.error('Error saving all links:', e);
+                alert('Eroare la salvare! Verifică spațiul disponibil în browser.');
+            }
+        }
+
+        function loadAllLinks() {
+            try {
+                const saved = localStorage.getItem(ALL_LINKS_KEY);
+                if (saved) {
+                    const loadedLinks = JSON.parse(saved);
+                    if (Array.isArray(loadedLinks) && loadedLinks.length > 0) {
+                        links = loadedLinks;
+                        console.log('✅ Loaded', links.length, 'links from localStorage');
+                        return true;
+                    }
+                }
+                console.log('📦 No saved links found, using defaults');
+                return false;
+            } catch (e) {
+                console.error('Error loading all links:', e);
+                return false;
+            }
+        }
+
+        // Legacy function for backwards compatibility - remove old keys
+        function loadCustomLinks() {
+            // This is now just for migration - load old custom links and merge
+            const CUSTOM_KEY = "customLinks_v2";
+            try {
+                const raw = localStorage.getItem(CUSTOM_KEY);
+                if (!raw) return;
+                const arr = JSON.parse(raw);
+                if (!Array.isArray(arr)) return;
+                
+                arr.forEach(item => {
+                    if (item && item.name && item.url && item.category) {
+                        const exists = links.some(l => l.url === item.url);
+                        if (!exists) {
+                            links.push(item);
+                            console.log('Migrated custom link:', item.name);
+                        }
+                    }
+                });
+                
+                // Save migrated data and remove old key
+                if (arr.length > 0) {
+                    saveAllLinks();
+                    localStorage.removeItem(CUSTOM_KEY);
+                    console.log('✅ Migrated', arr.length, 'custom links');
+                }
+            } catch (e) {
+                console.error('Error migrating custom links:', e);
+            }
+        }
+
+        function saveCustomLinks() {
+            // Legacy function - now just calls saveAllLinks
+            saveAllLinks();
+        }
+    </script>
+</body>
+</html>

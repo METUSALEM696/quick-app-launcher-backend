@@ -1,0 +1,1838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<title>ESP32 Pro Control — System Control</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    :root {
+      --bg: #000;
+      --color-mute: #ff0055;
+      --color-unmute: #00ffaa;
+      --color-fs-on: #ffcc00;
+      --color-fs-off: #4455ff;
+      --color-play: #00ff00;
+      --color-pause: #aa00ff;
+      --base-green: #00ff00;
+      --base-blue: #00ccff;
+      --base-red: #ff4444;
+      --base-orange: #ff8800;
+      --base-purple: #8844ff;
+      --base-cyan: #44ffff;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Orbitron', sans-serif;
+      background: var(--bg);
+      color: white;
+      text-align: center;
+      overflow-x: hidden;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    /* Butoanele din grid nu mai ies din coloană */
+    .container button { min-width: 0; max-width: 100%; }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+      color: var(--color-fs-on);
+      text-shadow: 0 0 25px var(--color-fs-on), 0 0 60px var(--color-fs-on);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 25px;
+      padding: 0 10px;
+    }
+
+    .panel {
+      background: rgba(255,255,255,0.05);
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      min-height: 200px;
+      overflow: hidden;
+    }
+
+    /* Ordine prioritate */
+    .priority-1 { order: 1; border: 3px solid var(--base-green); background: rgba(0,255,170,0.1); }
+    .priority-2 { order: 2; border: 2px solid var(--base-orange); background: rgba(255,136,0,0.08); }
+    .priority-3 { order: 3; border: 2px solid var(--base-cyan); background: rgba(68,255,255,0.06); }
+    .priority-4 { order: 4; border: 1px solid var(--base-blue); background: rgba(68,85,255,0.05); }
+
+    .panel h2 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: var(--base-cyan);
+      text-shadow: 0 0 15px var(--base-cyan);
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      margin: 12px 0;
+      padding: 15px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      color: black;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+      filter: brightness(1.2);
+    }
+
+    .pulse {
+      animation: pulseGlow 1s;
+    }
+
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 0px white; }
+      50% { box-shadow: 0 0 25px white; }
+      100% { box-shadow: 0 0 0px white; }
+    }
+
+    .btn-green { background: var(--base-green); box-shadow: 0 0 15px var(--base-green); }
+    .btn-blue { background: var(--base-blue); box-shadow: 0 0 15px var(--base-blue); }
+    .btn-red { background: var(--base-red); box-shadow: 0 0 15px var(--base-red); }
+    .btn-orange { background: var(--base-orange); box-shadow: 0 0 15px var(--base-orange); }
+    .btn-purple { background: var(--base-purple); box-shadow: 0 0 15px var(--base-purple); }
+    .btn-cyan { background: var(--base-cyan); box-shadow: 0 0 15px var(--base-cyan); }
+
+    @keyframes btnOffGradient {
+      0% { background-position: 0% 40%; }
+      50% { background-position: 100% 60%; }
+      100% { background-position: 0% 40%; }
+    }
+
+    @keyframes btnOffGlow {
+      0%, 100% {
+        box-shadow:
+          0 0 18px rgba(255, 0, 100, 0.55),
+          0 0 36px rgba(160, 0, 255, 0.35),
+          0 0 4px rgba(255, 200, 255, 0.4) inset;
+      }
+      50% {
+        box-shadow:
+          0 0 28px rgba(255, 60, 140, 0.85),
+          0 0 52px rgba(200, 40, 255, 0.45),
+          0 0 12px rgba(255, 255, 255, 0.15) inset;
+      }
+    }
+
+    @keyframes btnOffEmoji {
+      0%, 100% { transform: rotate(0deg) scale(1); filter: drop-shadow(0 0 10px #ff2d6a); }
+      40% { transform: rotate(-6deg) scale(1.12); filter: drop-shadow(0 0 18px #ff66aa); }
+      70% { transform: rotate(4deg) scale(1.06); filter: drop-shadow(0 0 14px #cc44ff); }
+    }
+
+    .btn-off {
+      position: relative;
+      overflow: hidden;
+      flex-direction: column;
+      gap: 4px;
+      padding: 18px 16px;
+      color: #fff;
+      border: 2px solid rgba(255, 100, 180, 0.65);
+      background: linear-gradient(
+        130deg,
+        #120018 0%,
+        #3a0638 18%,
+        #5c0a28 38%,
+        #2a1048 58%,
+        #450818 78%,
+        #1a0030 100%
+      );
+      background-size: 280% 280%;
+      animation: btnOffGradient 6s ease-in-out infinite, btnOffGlow 2.8s ease-in-out infinite;
+      text-shadow: 0 0 14px rgba(255, 120, 200, 0.9), 0 2px 4px rgba(0, 0, 0, 0.85);
+    }
+
+    .btn-off::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+        ellipse 80% 60% at 50% 0%,
+        rgba(255, 80, 160, 0.35) 0%,
+        transparent 55%
+      );
+      pointer-events: none;
+    }
+
+    .btn-off:hover {
+      filter: brightness(1.12) saturate(1.15);
+      border-color: rgba(255, 180, 255, 0.95);
+      transform: scale(1.06);
+    }
+
+    .btn-off .btn-off-wrap {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .btn-off .btn-off-emoji {
+      font-size: 28px;
+      margin-right: 0;
+      animation: btnOffEmoji 2.2s ease-in-out infinite;
+    }
+
+    .btn-off .btn-off-stack {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      line-height: 1.15;
+      text-align: left;
+    }
+
+    .btn-off .btn-off-line1 {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+    }
+
+    .btn-off .btn-off-line2 {
+      font-size: 11px;
+      font-weight: 600;
+      opacity: 0.92;
+      letter-spacing: 0.04em;
+      color: #ffc8e8;
+      text-shadow: 0 0 8px rgba(255, 150, 220, 0.8);
+    }
+
+    .state-mute { background: var(--color-mute); box-shadow: 0 0 20px var(--color-mute); }
+    .state-unmute { background: var(--color-unmute); box-shadow: 0 0 20px var(--color-unmute); }
+    .state-fs-on { background: var(--color-fs-on); box-shadow: 0 0 20px var(--color-fs-on); }
+    .state-fs-off { background: var(--color-fs-off); box-shadow: 0 0 20px var(--color-fs-off); }
+    .state-play { background: var(--color-play); box-shadow: 0 0 20px var(--color-play); }
+    .state-pause { background: var(--color-pause); box-shadow: 0 0 20px var(--color-pause); }
+
+    .emoji {
+      font-size: 24px;
+      margin-right: 8px;
+    }
+
+    #feedback {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 255, 0, 0.2);
+      padding: 15px 25px;
+      border-radius: 10px;
+      color: var(--base-green);
+      font-weight: bold;
+      opacity: 0;
+      transition: opacity 0.5s;
+      border: 2px solid var(--base-green);
+      z-index: 1000;
+    }
+
+    /* Pop-up amuzant înainte de System Control */
+    .funny-popup-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 20000;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      cursor: pointer;
+      animation: funnyFadeIn 0.25s ease-out;
+    }
+
+    @keyframes funnyFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .funny-popup-box {
+      max-width: 420px;
+      background: linear-gradient(145deg, rgba(30, 30, 45, 0.98), rgba(15, 15, 25, 0.99));
+      border: 2px solid var(--base-cyan);
+      border-radius: 20px;
+      padding: 28px 24px;
+      box-shadow: 0 0 40px rgba(68, 255, 255, 0.35), inset 0 0 60px rgba(0, 0, 0, 0.5);
+      text-align: center;
+      cursor: default;
+    }
+
+    .funny-popup-emoji {
+      font-size: 3rem;
+      line-height: 1;
+      margin-bottom: 12px;
+      filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.4));
+    }
+
+    .funny-popup-title {
+      font-size: 0.85rem;
+      color: var(--base-orange);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin: 0 0 14px 0;
+    }
+
+    .funny-popup-text {
+      font-size: 1.05rem;
+      line-height: 1.45;
+      color: #e8f8ff;
+      margin: 0 0 18px 0;
+      text-shadow: 0 0 20px rgba(68, 255, 255, 0.25);
+    }
+
+    .funny-popup-hint {
+      font-size: 0.72rem;
+      color: #8899aa;
+      margin: 0;
+    }
+
+    .funny-popup-power {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    .funny-countdown {
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: var(--base-orange);
+      text-shadow: 0 0 24px rgba(255, 136, 0, 0.7);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .funny-countdown-label {
+      font-size: 0.75rem;
+      color: #aab;
+      margin-top: -8px;
+    }
+
+    .funny-cancel-btn {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 12px 28px;
+      border-radius: 12px;
+      border: 2px solid var(--base-red);
+      background: rgba(255, 68, 68, 0.2);
+      color: #ff8888;
+      cursor: pointer;
+      box-shadow: 0 0 18px rgba(255, 68, 68, 0.35);
+      transition: transform 0.15s, filter 0.15s;
+    }
+
+    .funny-cancel-btn:hover {
+      transform: scale(1.05);
+      filter: brightness(1.15);
+    }
+
+    .mouse-coords {
+      margin: 15px 0;
+      padding: 15px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      border: 1px solid var(--base-cyan);
+    }
+
+    .coord-input {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid var(--base-cyan);
+      color: white;
+      padding: 8px;
+      margin: 5px;
+      border-radius: 5px;
+      width: 80px;
+      text-align: center;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .coord-input:focus {
+      outline: none;
+      border-color: var(--base-green);
+      box-shadow: 0 0 10px var(--base-green);
+    }
+
+    /* Stiluri pentru butonul de urgență */
+    .emergency-btn {
+      background: linear-gradient(45deg, #ff0000, #ff6600);
+      animation: emergencyPulse 2s infinite;
+    }
+
+    @keyframes emergencyPulse {
+      0% { box-shadow: 0 0 20px #ff0000; }
+      50% { box-shadow: 0 0 40px #ff6600; }
+      100% { box-shadow: 0 0 20px #ff0000; }
+    }
+
+    footer {
+      margin-top: 40px;
+      color: #888;
+      font-size: 13px;
+      grid-column: 1 / -1;
+    }
+
+    @media (max-width: 900px) {
+      body {
+        padding: 8px;
+      }
+      .container {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 0;
+        max-width: 100%;
+      }
+      h1 {
+        font-size: 1.6rem;
+        margin-bottom: 16px;
+        word-break: break-word;
+      }
+      .panel {
+        padding: 14px;
+        min-height: auto;
+        border-radius: 16px;
+      }
+      .panel h2 {
+        font-size: 1.2rem;
+      }
+      .btn {
+        font-size: 14px;
+        padding: 13px 8px;
+        margin: 8px 0;
+      }
+      /* Butoanele cu emoji+text nu mai sunt tăiate */
+      .btn .emoji {
+        font-size: 18px;
+        margin-right: 5px;
+      }
+      /* Grid-urile de butoane se string fara overflow */
+      .container .panel > div[style*="grid"] {
+        gap: 8px !important;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .btn {
+        font-size: 12px;
+        padding: 12px 4px;
+      }
+      .btn .emoji {
+        font-size: 16px;
+        margin-right: 3px;
+      }
+    }
+
+    /* ===== Secțiuni pliabile (click pe titlu) ===== */
+    .panel > h2 {
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      position: relative;
+      padding-right: 28px;
+    }
+    .panel > h2::after {
+      content: "▾";
+      position: absolute;
+      right: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      opacity: 0.8;
+      transition: transform 0.2s ease;
+    }
+    .panel.collapsed > h2 {
+      margin-bottom: 0;
+    }
+    .panel.collapsed > h2::after {
+      transform: translateY(-50%) rotate(-90deg);
+    }
+    .panel.collapsed > *:not(h2) {
+      display: none !important;
+    }
+    .panel.collapsed {
+      min-height: 0;
+    }
+
+    /* ===== Bara de conexiune / setări ===== */
+    .conn-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 8px 0;
+    }
+    .status-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #888;
+      box-shadow: 0 0 10px #888;
+      display: inline-block;
+      flex: 0 0 auto;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    .status-dot.online { background: var(--base-green); box-shadow: 0 0 12px var(--base-green); }
+    .status-dot.offline { background: var(--base-red); box-shadow: 0 0 12px var(--base-red); }
+    .field-input {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--base-cyan);
+      color: #fff;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 14px;
+      outline: none;
+      width: 100%;
+    }
+    .field-input:focus { border-color: var(--base-green); box-shadow: 0 0 10px rgba(0,255,170,0.4); }
+
+    /* ===== Grid compact pentru aplicații ===== */
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(95px, 1fr));
+      gap: 10px;
+    }
+    .app-grid .btn {
+      margin: 0;
+      flex-direction: column;
+      gap: 4px;
+      padding: 12px 6px;
+      font-size: 12px;
+      line-height: 1.1;
+    }
+    .app-grid .btn .emoji { font-size: 22px; }
+
+    /* ===== Bara de taburi ===== */
+    .tabbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      max-width: 900px;
+      margin: 0 auto 24px;
+      padding: 0 10px;
+    }
+    .tab-btn {
+      flex: 1 1 auto;
+      min-width: 110px;
+      padding: 14px 16px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: #cfefff;
+      background: rgba(255,255,255,0.05);
+      border: 2px solid rgba(68,255,255,0.35);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .tab-btn:hover { filter: brightness(1.2); }
+    .tab-btn.active {
+      color: #001018;
+      background: var(--base-cyan);
+      border-color: var(--base-cyan);
+      box-shadow: 0 0 18px var(--base-cyan);
+    }
+    .panel.tab-hidden { display: none !important; }
+</style>
+</head>
+<body>
+<h1>🎮 ESP32 Pro Control - Fixed Version</h1>
+<p id="controlTargetHint" style="font-size:0.82rem;color:#66ddcc;margin:6px 0 18px;max-width:900px;margin-left:auto;margin-right:auto;line-height:1.35;"></p>
+
+<div class="tabbar" id="tabBar">
+    <button class="tab-btn" data-tab="mouse" onclick="showTab('mouse')">🖱️ Mouse</button>
+    <button class="tab-btn" data-tab="keyboard" onclick="showTab('keyboard')">⌨️ Tastatură</button>
+    <button class="tab-btn" data-tab="media" onclick="showTab('media')">🎵 Media</button>
+    <button class="tab-btn" data-tab="apps" onclick="showTab('apps')">🚀 Aplicații</button>
+    <button class="tab-btn" data-tab="system" onclick="showTab('system')">💻 Sistem</button>
+</div>
+
+<div class="container">
+    <!-- PRIORITATE 1 - Cele mai folosite -->
+
+    <!-- Conexiune & Setări -->
+    <div class="panel priority-1">
+        <h2>📡 Conexiune</h2>
+        <div class="conn-row">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText" style="font-size:14px;">Verific…</span>
+        </div>
+        <div class="conn-row">
+            <input class="field-input" id="cfgIp" type="text" inputmode="decimal"
+                   placeholder="IP PC (ex: 192.168.0.34)" style="flex:1 1 160px;">
+            <input class="field-input" id="cfgPort" type="text" inputmode="numeric"
+                   placeholder="Port" style="flex:0 0 90px; width:90px;">
+        </div>
+        <button class="btn btn-green" onclick="saveConnection()">
+            <span class="emoji">💾</span> Salvează &amp; Testează
+        </button>
+    </div>
+
+    <!-- Tastare text de la distanță -->
+    <div class="panel priority-1">
+        <h2>⌨️ Scrie în PC</h2>
+        <textarea class="field-input" id="typeBox" rows="3"
+                  placeholder="Scrie aici și apasă Trimite…" style="resize:vertical;"></textarea>
+        <button class="btn btn-blue" onclick="sendTypedText()" style="margin-top:12px;">
+            <span class="emoji">📨</span> Trimite text
+        </button>
+        <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:8px;">
+            <button class="btn btn-green" onclick="sendTypedText(true)" style="margin:0;">
+                <span class="emoji">⏎</span> Trimite + Enter
+            </button>
+            <button class="btn btn-orange" onclick="document.getElementById('typeBox').value=''" style="margin:0;">
+                <span class="emoji">🧹</span> Golește
+            </button>
+        </div>
+    </div>
+
+    <!-- Lansare aplicații -->
+    <div class="panel priority-2">
+        <h2>🚀 Aplicații</h2>
+        <div class="app-grid">
+            <button class="btn btn-cyan" onclick="launchApp('explorer', this)"><span class="emoji">📁</span> Explorer</button>
+            <button class="btn btn-blue" onclick="launchApp('chrome', this)"><span class="emoji">🌐</span> Chrome</button>
+            <button class="btn btn-orange" onclick="launchApp('brave', this)"><span class="emoji">🦁</span> Brave</button>
+            <button class="btn btn-green" onclick="launchApp('notepad', this)"><span class="emoji">📝</span> Notepad</button>
+            <button class="btn btn-purple" onclick="launchApp('calc', this)"><span class="emoji">🧮</span> Calc</button>
+            <button class="btn btn-cyan" onclick="launchApp('code', this)"><span class="emoji">💻</span> VS Code</button>
+            <button class="btn btn-blue" onclick="launchApp('vlc', this)"><span class="emoji">🎬</span> VLC</button>
+            <button class="btn btn-green" onclick="launchApp('word', this)"><span class="emoji">📄</span> Word</button>
+            <button class="btn btn-orange" onclick="launchApp('excel', this)"><span class="emoji">📊</span> Excel</button>
+            <button class="btn btn-red" onclick="launchApp('taskmgr', this)"><span class="emoji">📈</span> Task Mgr</button>
+        </div>
+    </div>
+
+    <!-- Comutare ferestre deschise -->
+    <div class="panel priority-1">
+        <h2>🪟 Ferestre deschise</h2>
+        <p style="font-size:12px; color:#bbb; margin:0 0 10px; line-height:1.3;">
+            Comută pe rând între aplicațiile deschise (NICUȘOR, Claude, Cursor, etc.).
+        </p>
+        <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:10px;">
+            <button class="btn btn-purple" onclick="sendFeedback('cycle_window_prev', this)" style="margin:0;">
+                <span class="emoji">⏪</span> Anterioara
+            </button>
+            <button class="btn btn-green" onclick="sendFeedback('cycle_window', this)" style="margin:0;">
+                <span class="emoji">⏩</span> Următoarea
+            </button>
+        </div>
+        <button class="btn btn-orange" onclick="sendFeedback('alt_tab', this)">
+            <span class="emoji">🔀</span> ALT+TAB
+        </button>
+    </div>
+
+    <!-- Audio/Video Control -->
+    <div class="panel priority-1">
+        <h2>🎵 Audio & Video</h2>
+        <button class="btn btn-green" onclick="sendFeedback('volume_up', this)">
+            <span class="emoji">🔊</span> VOLUME UP
+        </button>
+        <button class="btn btn-blue" onclick="sendFeedback('volume_down', this)">
+            <span class="emoji">🔉</span> VOLUME DOWN
+        </button>
+        <button class="btn state-unmute" id="btnMute" onclick="toggleMute()">
+            <span class="emoji" id="emojiMute">🔊</span> <span id="textMute">MUTE</span>
+        </button>
+        <!-- FULLSCREEN: optiuni fiabile pentru orice player -->
+        <div style="background:rgba(255,204,0,0.08); padding:12px; border-radius:12px; margin:12px 0; border:2px solid var(--color-fs-on);">
+            <h3 style="color:var(--color-fs-on); margin:0 0 10px;">🖥️ Fullscreen</h3>
+            <button class="btn state-fs-on" id="btnFullscreen" onclick="sendFeedback('fullscreen_video', this)" style="margin-top:0;">
+                <span class="emoji">⛶</span> FULLSCREEN VIDEO
+            </button>
+            <p style="font-size:11px; color:#bbb; margin:8px 0 0; line-height:1.3;">
+                Dublu-click în centrul ecranului (merge pe YouTube, VLC, Netflix).
+            </p>
+        </div>
+        <button class="btn state-play" id="btnPlayPause" onclick="togglePlayPause()">
+            <span class="emoji" id="emojiPP">▶️</span> <span id="textPP">PLAY</span>
+        </button>
+        <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin:12px 0;">
+            <button class="btn btn-purple" onclick="sendFeedback('prev_track', this)" style="margin:0;">
+                <span class="emoji">⏮️</span> PREV
+            </button>
+            <button class="btn btn-purple" onclick="sendFeedback('next_track', this)" style="margin:0;">
+                <span class="emoji">⏭️</span> NEXT
+            </button>
+        </div>
+        <button class="btn btn-green" onclick="sendFeedback('click', this)">
+            <span class="emoji">👆</span> CLICK
+        </button>
+        <button class="btn btn-blue" onclick="sendFeedback('double_click', this)">
+            <span class="emoji">👆👆</span> DOUBLE CLICK
+        </button>
+        <button class="btn btn-red" onclick="sendFeedback('right_click', this)">
+            <span class="emoji">👉</span> RIGHT CLICK
+        </button>
+        <button class="btn btn-green" onclick="sendFeedback('minimize', this)">
+            <span class="emoji">➖</span> MINIMIZE
+        </button>
+        <button class="btn btn-blue" onclick="sendFeedback('maximize', this)">
+            <span class="emoji">⬜</span> MAXIMIZE
+        </button>
+        <button class="btn btn-red" onclick="sendFeedback('close_window', this)">
+            <span class="emoji">❌</span> CLOSE WINDOW
+        </button>
+        <button class="btn btn-green" onclick="sendFeedback('enter', this)">
+            <span class="emoji">⏎</span> ENTER
+        </button>
+    </div>
+
+    <!-- Mouse Movement FIXED -->
+    <div class="panel priority-1">
+        <h2>🖱️ Mouse Movement (FIXED!)</h2>
+
+        <!-- TRACKPAD TACTIL -->
+        <div style="margin-bottom:20px;">
+            <h3 style="color: var(--base-cyan); margin-bottom:10px;">🖐️ Trackpad (mișcă degetul)</h3>
+            <div id="touchpad" style="height:220px; background:rgba(68,255,255,0.07);
+                 border:2px solid var(--base-cyan); border-radius:16px;
+                 display:flex; align-items:center; justify-content:center;
+                 color:#66ddcc; font-size:14px; touch-action:none; user-select:none;
+                 -webkit-user-select:none; cursor:crosshair; transition:background .15s, border-color .15s;">
+                <span id="touchpadLabel">Atinge și mișcă pentru mouse<br>(scurt = click • ține apăsat = selectează)<br>2 degete = scroll pagini</span>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:10px;">
+                <button class="btn btn-green" onclick="sendFeedback('click', this)" style="margin:0;">
+                    <span class="emoji">👆</span> Click
+                </button>
+                <button class="btn btn-blue" onclick="sendFeedback('double_click', this)" style="margin:0;">
+                    <span class="emoji">👆👆</span> Dublu
+                </button>
+                <button class="btn btn-red" onclick="sendFeedback('right_click', this)" style="margin:0;">
+                    <span class="emoji">👉</span> Dreapta
+                </button>
+            </div>
+            <div style="margin-top:10px; color:var(--base-cyan); font-size:13px;">
+                Sensibilitate:
+                <input type="range" id="padSensitivity" min="1" max="6" step="0.5" value="2.5"
+                       style="vertical-align:middle; width:55%;">
+                <span id="padSensVal">2.5x</span>
+            </div>
+        </div>
+
+        <!-- SCROLL pe pagini -->
+        <h3 style="color: var(--base-cyan); margin: 6px 0 10px;">📜 Scroll pagini</h3>
+        <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:10px;">
+            <button class="btn btn-red" onclick="sendFeedback('scroll_fast_up', this)" style="margin:0;">
+                <span class="emoji">🔺</span> Scroll Sus
+            </button>
+            <button class="btn btn-red" onclick="sendFeedback('scroll_fast_down', this)" style="margin:0;">
+                <span class="emoji">🔻</span> Scroll Jos
+            </button>
+            <button class="btn btn-cyan" onclick="sendFeedback('scroll_page_up', this)" style="margin:0;">
+                <span class="emoji">📄</span> Page Up
+            </button>
+            <button class="btn btn-cyan" onclick="sendFeedback('scroll_page_down', this)" style="margin:0;">
+                <span class="emoji">📄</span> Page Down
+            </button>
+            <button class="btn btn-orange" onclick="sendFeedback('scroll_top', this)" style="margin:0;">
+                <span class="emoji">🔝</span> Sus de tot
+            </button>
+            <button class="btn btn-orange" onclick="sendFeedback('scroll_bottom', this)" style="margin:0;">
+                <span class="emoji">🔚</span> Jos de tot
+            </button>
+        </div>
+
+        <button class="btn btn-blue" onclick="sendFeedback('show_desktop', this)" style="margin-top:12px;">
+            <span class="emoji">🖥️</span> Afișează Desktopul
+        </button>
+    </div>
+
+    <!-- PRIORITATE 2 - Folosite frecvent -->
+    
+    <!-- Keyboard Essential -->
+    <div class="panel priority-2">
+        <h2>⌨️ Keyboard</h2>
+        <button class="btn btn-red" onclick="sendFeedback('escape', this)">
+            <span class="emoji">⛔</span> ESCAPE
+        </button>
+        <button class="btn btn-blue" onclick="sendFeedback('tab', this)">
+            <span class="emoji">⭾</span> TAB
+        </button>
+        <button class="btn btn-cyan" onclick="sendFeedback('shift_tab', this)">
+            <span class="emoji">⭾</span> SHIFT+TAB
+        </button>
+        <button class="btn btn-orange" onclick="sendFeedback('space', this)">
+            <span class="emoji">⎵</span> SPACE
+        </button>
+        <button class="btn btn-purple" onclick="sendFeedback('backspace', this)">
+            <span class="emoji">⌫</span> BACKSPACE
+        </button>
+        <button class="btn btn-cyan" onclick="sendFeedback('delete', this)">
+            <span class="emoji">⌦</span> DELETE
+        </button>
+    </div>
+
+    <!-- Browser Navigation -->
+    <div class="panel priority-2">
+        <h2>🧭 Browser Navigation</h2>
+        <button class="btn btn-blue" onclick="sendFeedback('back', this)">
+            <span class="emoji">⬅️</span> BACK
+        </button>
+        <button class="btn btn-blue" onclick="sendFeedback('forward', this)">
+            <span class="emoji">➡️</span> FORWARD
+        </button>
+        <button class="btn btn-green" onclick="sendFeedback('browser_back', this)">
+            <span class="emoji">🌐</span> BROWSER BACK
+        </button>
+        <button class="btn btn-green" onclick="sendFeedback('browser_forward', this)">
+            <span class="emoji">🌐</span> BROWSER FORWARD
+        </button>
+    </div>
+
+    <!-- Selection & Edit -->
+    <div class="panel priority-2">
+        <h2>✂️ Selection & Edit</h2>
+        <button class="btn btn-blue" onclick="sendFeedback('select_all', this)">
+            <span class="emoji">📋</span> SELECT ALL
+        </button>
+        <button class="btn btn-green" onclick="sendFeedback('select_word', this)">
+            <span class="emoji">📝</span> SELECT WORD
+        </button>
+        <button class="btn btn-cyan" onclick="sendFeedback('select_line', this)">
+            <span class="emoji">📄</span> SELECT LINE
+        </button>
+        <button class="btn btn-orange" onclick="sendFeedback('copy', this)">
+            <span class="emoji">📋</span> COPY
+        </button>
+        <button class="btn btn-purple" onclick="sendFeedback('paste', this)">
+            <span class="emoji">📌</span> PASTE
+        </button>
+    </div>
+
+    <!-- PRIORITATE 3 - Ocasional -->
+    
+    <!-- System Control -->
+    <div class="panel priority-3">
+        <h2>💻 System Control</h2>
+        <button class="btn btn-red" onclick="sendFeedback('sleep', this)">
+            <span class="emoji">😴</span> SLEEP
+        </button>
+        <button class="btn btn-purple" onclick="sendFeedback('hibernate', this)">
+            <span class="emoji">🌙</span> HIBERNATE
+        </button>
+        <button class="btn btn-cyan" onclick="sendFeedback('screenshot', this)">
+            <span class="emoji">📸</span> SCREENSHOT
+        </button>
+        <button class="btn btn-orange" onclick="sendFeedback('alt_tab', this)">
+            <span class="emoji">🔄</span> ALT+TAB
+        </button>
+        <button class="btn btn-off" onclick="sendFeedback('turn_off', this)" type="button">
+            <span class="btn-off-wrap">
+                <span class="emoji btn-off-emoji" aria-hidden="true">⏻</span>
+                <span class="btn-off-stack">
+                    <span class="btn-off-line1">TURN OFF</span>
+                    <span class="btn-off-line2">Lights out show — apoi liniște totală</span>
+                </span>
+            </span>
+        </button>
+    </div>
+
+    <!-- PRIORITATE 4 - Rar folosite -->
+    
+    <!-- Function Keys -->
+    <div class="panel priority-4">
+        <h2>🔧 Function Keys</h2>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px;">
+            <button class="btn btn-blue" onclick="sendFeedback('f5', this)" style="margin: 0; padding: 12px; font-size: 14px;">
+                F5<br><small>Refresh</small>
+            </button>
+            <button class="btn btn-green" onclick="sendFeedback('f11', this)" style="margin: 0; padding: 12px; font-size: 14px;">
+                F11<br><small>Fullscreen</small>
+            </button>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px;">
+            <button class="btn btn-orange" onclick="sendFeedback('f12', this)" style="margin: 0; padding: 12px; font-size: 14px;">
+                F12<br><small>DevTools</small>
+            </button>
+            <button class="btn btn-cyan" onclick="sendFeedback('f4', this)" style="margin: 0; padding: 12px; font-size: 14px;">
+                F4<br><small>Address</small>
+            </button>
+        </div>
+        <button class="btn btn-purple" onclick="sendFeedback('ctrl_shift_i', this)">
+            <span class="emoji">🔍</span> CTRL+SHIFT+I (DevTools)
+        </button>
+        <button class="btn btn-cyan" onclick="sendFeedback('ctrl_r', this)">
+            <span class="emoji">🔄</span> CTRL+R (Refresh)
+        </button>
+    </div>
+</div>
+
+<div id="feedback">Comandă trimisă!</div>
+
+<div id="funnyPopupOverlay" class="funny-popup-overlay" aria-hidden="true">
+    <div class="funny-popup-box" onclick="event.stopPropagation()">
+        <div class="funny-popup-emoji" id="funnyPopupEmoji">🎭</div>
+        <p class="funny-popup-title">Scurt moment de umor…</p>
+        <p class="funny-popup-text" id="funnyPopupText"></p>
+        <p class="funny-popup-hint" id="funnyPopupHint">Apasă pe fundal, Esc sau așteaptă ~1,7s — apoi se trimite comanda.</p>
+        <div id="funnyPopupPowerRow" class="funny-popup-power">
+            <div class="funny-countdown" id="funnyPopupCountdown">10</div>
+            <span class="funny-countdown-label">secunde până trimite (poți anula)</span>
+            <button type="button" class="funny-cancel-btn" id="funnyPopupCancelBtn">Anulează</button>
+        </div>
+    </div>
+</div>
+
+<footer>© 2025 ESP32 Pro Control UI – Fixed Mouse Corner Issue</footer>
+
+<script>
+   // Variabile pentru stări
+  let muted = false;
+  let fullscreen = false;
+  let playing = false;
+
+const qs = new URLSearchParams(location.search);
+
+// dacă deschizi local (127.0.0.1), forțează IP din query sau pune-l manual aici:
+const FALLBACK_LAN_IP = "192.168.0.34"; // schimbă cu IP-ul tău
+
+// Pe TELEFON: 127.0.0.1 = telefonul, nu PC-ul — comenzile trebuie să meargă la host-ul din bara de adresă.
+const qIp = qs.get("ip");
+const qPort = qs.get("port");
+let serverIP;
+let serverPort;
+
+if (qIp) {
+  serverIP = qIp;
+  serverPort = qPort || (location.port ? String(location.port) : null) || localStorage.getItem("serverPort") || "8899";
+} else if (location.protocol === "http:" || location.protocol === "https:") {
+  serverIP = location.hostname;
+  serverPort = (location.port ? String(location.port) : null) || localStorage.getItem("serverPort") || "8899";
+} else {
+  serverIP = localStorage.getItem("serverIP") || FALLBACK_LAN_IP;
+  serverPort = localStorage.getItem("serverPort") || "8899";
+}
+
+try {
+  localStorage.setItem("serverIP", serverIP);
+  localStorage.setItem("serverPort", serverPort);
+} catch (e) {
+  /* Safari mod privat / restricții: fără localStorage pagina tot trebuie să meargă */
+}
+
+console.log("PAGE ORIGIN:", location.origin);
+console.log("CONTROL TARGET:", `http://${serverIP}:${serverPort}/`);
+
+try {
+  const hint = document.getElementById("controlTargetHint");
+  if (hint) {
+    hint.innerHTML =
+      "📡 Comenzi către: <strong>http://" +
+      serverIP +
+      ":" +
+      serverPort +
+      "/</strong> — trebuie să fie același PC care servește această pagină. " +
+      "Dacă pe telefon nu merge: verifică firewall Windows (port " +
+      serverPort +
+      ") și Wi‑Fi comun.";
+  }
+} catch (e) {}
+
+  // ===== Conexiune: salvare IP/port + indicator status =====
+  function refreshConnFields() {
+    var ipEl = document.getElementById("cfgIp");
+    var portEl = document.getElementById("cfgPort");
+    if (ipEl) ipEl.value = serverIP || "";
+    if (portEl) portEl.value = serverPort || "";
+  }
+
+  function setStatus(online, text) {
+    var dot = document.getElementById("statusDot");
+    var txt = document.getElementById("statusText");
+    if (dot) { dot.classList.toggle("online", !!online); dot.classList.toggle("offline", !online); }
+    if (txt) txt.textContent = text;
+  }
+
+  function pingServer() {
+    setStatus(false, "Verific…");
+    fetch("http://" + serverIP + ":" + serverPort + "/ping", { cache: "no-store", mode: "cors" })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        setStatus(true, "✅ Conectat (" + serverIP + ":" + serverPort + (j.admin ? ", admin" : "") + ")");
+      })
+      .catch(function () {
+        setStatus(false, "❌ Deconectat (" + serverIP + ":" + serverPort + ")");
+      });
+  }
+
+  function saveConnection() {
+    var ipEl = document.getElementById("cfgIp");
+    var portEl = document.getElementById("cfgPort");
+    var newIp = (ipEl && ipEl.value.trim()) || serverIP;
+    var newPort = (portEl && portEl.value.trim()) || serverPort;
+    serverIP = newIp;
+    serverPort = newPort;
+    try {
+      localStorage.setItem("serverIP", serverIP);
+      localStorage.setItem("serverPort", serverPort);
+    } catch (e) {}
+    if (typeof showFeedback === "function") showFeedback("💾 Salvat: " + serverIP + ":" + serverPort);
+    pingServer();
+  }
+
+  // ===== Scrie text în PC =====
+  function sendTypedText(withEnter) {
+    var box = document.getElementById("typeBox");
+    if (!box) return;
+    var txt = box.value;
+    if (!txt) { if (typeof showFeedback === "function") showFeedback("⚠️ Nimic de trimis", true); return; }
+    sendCommand("type", "text=" + encodeURIComponent(txt));
+    if (withEnter) setTimeout(function () { sendCommand("enter"); }, 120);
+    if (typeof showFeedback === "function") showFeedback("📨 Text trimis");
+  }
+
+  // ===== Lansare aplicații (/launch?app=) =====
+  function launchApp(app, btn) {
+    if (btn) { btn.classList.remove("pulse"); void btn.offsetWidth; btn.classList.add("pulse"); }
+    fetch("http://" + serverIP + ":" + serverPort + "/launch?app=" + encodeURIComponent(app), { cache: "no-store", mode: "cors" })
+      .then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (j) {
+        if (j && j.ok === false) {
+          if (typeof showFeedback === "function") showFeedback("❌ " + app + ": " + (j.error || "eroare"), true);
+        } else if (typeof showFeedback === "function") {
+          showFeedback("🚀 Pornit: " + app);
+        }
+      })
+      .catch(function () { if (typeof showFeedback === "function") showFeedback("❌ Fără conexiune", true); });
+  }
+
+  // ===== Secțiuni pliabile + memorare stare =====
+  function initCollapsibleSections() {
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem("collapsedSections") || "{}"); } catch (e) {}
+    var panels = document.querySelectorAll(".panel");
+    panels.forEach(function (panel) {
+      var h2 = panel.querySelector(":scope > h2");
+      if (!h2) return;
+      var key = h2.textContent.trim();
+      if (saved[key]) panel.classList.add("collapsed");
+      h2.addEventListener("click", function () {
+        panel.classList.toggle("collapsed");
+        try {
+          var cur = JSON.parse(localStorage.getItem("collapsedSections") || "{}");
+          cur[key] = panel.classList.contains("collapsed");
+          localStorage.setItem("collapsedSections", JSON.stringify(cur));
+        } catch (e) {}
+      });
+    });
+  }
+
+  // ===== Taburi: grupează panourile pe categorii =====
+  function tabForTitle(title) {
+    var t = title || "";
+    if (t.indexOf("Mouse Movement") !== -1 || t.indexOf("Scroll") !== -1) return "mouse";
+    if (t.indexOf("Audio") !== -1 || t.indexOf("Browser") !== -1) return "media";
+    if (t.indexOf("Aplica") !== -1) return "apps";
+    if (t.indexOf("Conexiune") !== -1 || t.indexOf("System Control") !== -1 || t.indexOf("Ferestre") !== -1) return "system";
+    return "keyboard"; // Scrie în PC, Keyboard, Arrow Keys, Selection, Function Keys
+  }
+
+  function showTab(name) {
+    document.querySelectorAll(".panel").forEach(function (panel) {
+      panel.classList.toggle("tab-hidden", panel.getAttribute("data-tab") !== name);
+    });
+    document.querySelectorAll(".tab-btn").forEach(function (b) {
+      b.classList.toggle("active", b.getAttribute("data-tab") === name);
+    });
+    try { localStorage.setItem("activeTab", name); } catch (e) {}
+  }
+
+  function initTabs() {
+    document.querySelectorAll(".panel").forEach(function (panel) {
+      var h2 = panel.querySelector(":scope > h2");
+      panel.setAttribute("data-tab", tabForTitle(h2 ? h2.textContent.trim() : ""));
+    });
+    var saved = "mouse";
+    try { saved = localStorage.getItem("activeTab") || "mouse"; } catch (e) {}
+    if (!document.querySelector('.tab-btn[data-tab="' + saved + '"]')) saved = "mouse";
+    showTab(saved);
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    refreshConnFields();
+    initTabs();
+    initCollapsibleSections();
+    pingServer();
+    setInterval(pingServer, 15000);
+  });
+
+  // Variabile pentru tracking poziție mouse (estimativă)
+  let estimatedMouseX = 960;
+  let estimatedMouseY = 540;
+  const screenWidth = 1920;
+  const screenHeight = 1080;
+
+  // ⚡ FUNCȚIA PRINCIPALĂ PENTRU TRIMITEREA COMENZILOR
+  function sendCommand(cmd, params = '') {
+    let url = `http://${serverIP}:${serverPort}/?c=${cmd}`;
+    if (params) url += `&${params}`;
+
+    console.log("🔥 URL TRIMIS:", url);
+
+    fetch(url, { cache: "no-store", mode: "cors" })
+      .then(async (response) => {
+        const ct = (response.headers.get("content-type") || "").toLowerCase();
+        const raw = await response.text();
+        if (ct.includes("application/json")) {
+          try {
+            return { json: JSON.parse(raw), raw };
+          } catch {
+            return { raw };
+          }
+        }
+        return { raw };
+      })
+      .then((data) => {
+        if (data.json) {
+          const j = data.json;
+          if (j.ok === false) {
+            const msg = (j.error || "failed") + (j.hint ? " — " + j.hint : "");
+            showFeedback(`❌ ${cmd}: ${msg}`, true);
+            console.warn("Răspuns server (eroare):", j);
+            return;
+          }
+          showFeedback(`✅ ${cmd.toUpperCase()} — ${j.action || j.detail || "ok"}`);
+          console.log("✅ Răspuns server:", j);
+          return;
+        }
+        showFeedback(`✅ ${cmd.toUpperCase()} — Success!`);
+        console.log("✅ Răspuns server:", data.raw);
+      })
+      .catch(error => {
+        showFeedback(`❌ ${error.message} — verifică IP/portul de mai sus și firewall`, true);
+        console.error("❌ Eroare conexiune:", error, url);
+      });
+  }
+
+    // ⚡ FUNCȚII NOI PENTRU DEBLOCAREA MOUSE-ULUI
+
+    // Centrează mouse-ul pe ecran
+    function centerMouse() {
+        const centerX = Math.floor(screenWidth / 2);
+        const centerY = Math.floor(screenHeight / 2);
+        moveMouseAbsolute(centerX, centerY);
+        estimatedMouseX = centerX;
+        estimatedMouseY = centerY;
+        showFeedback(`🎯 Mouse centrat la (${centerX}, ${centerY})`);
+    }
+
+    // Mută mouse-ul la o poziție absolută
+    function moveMouseAbsolute(x, y) {
+        const params = `x=${x}&y=${y}`;
+        sendCommand('mouse_absolute', params);
+        estimatedMouseX = x;
+        estimatedMouseY = y;
+        showFeedback(`📍 Mouse mutat la (${x}, ${y})`);
+    }
+
+    // Detectează și sari automat din colț
+    function jumpAwayFromCorner() {
+        // Verifică dacă suntem aproape de colțuri
+        const cornerThreshold = 50;
+        let jumpX = estimatedMouseX;
+        let jumpY = estimatedMouseY;
+        
+        // Stânga sus
+        if (estimatedMouseX < cornerThreshold && estimatedMouseY < cornerThreshold) {
+            jumpX = 200;
+            jumpY = 200;
+        }
+        // Dreapta sus
+        else if (estimatedMouseX > screenWidth - cornerThreshold && estimatedMouseY < cornerThreshold) {
+            jumpX = screenWidth - 200;
+            jumpY = 200;
+        }
+        // Stânga jos
+        else if (estimatedMouseX < cornerThreshold && estimatedMouseY > screenHeight - cornerThreshold) {
+            jumpX = 200;
+            jumpY = screenHeight - 200;
+        }
+        // Dreapta jos
+        else if (estimatedMouseX > screenWidth - cornerThreshold && estimatedMouseY > screenHeight - cornerThreshold) {
+            jumpX = screenWidth - 200;
+            jumpY = screenHeight - 200;
+        }
+        // Margine stânga
+        else if (estimatedMouseX < cornerThreshold) {
+            jumpX = 200;
+        }
+        // Margine dreapta
+        else if (estimatedMouseX > screenWidth - cornerThreshold) {
+            jumpX = screenWidth - 200;
+        }
+        // Margine sus
+        else if (estimatedMouseY < cornerThreshold) {
+            jumpY = 200;
+        }
+        // Margine jos
+        else if (estimatedMouseY > screenHeight - cornerThreshold) {
+            jumpY = screenHeight - 200;
+        }
+        // Dacă nu e în colț, centrează
+        else {
+            centerMouse();
+            return;
+        }
+        
+        moveMouseAbsolute(jumpX, jumpY);
+        showFeedback(`🏃 Sărit din colț la (${jumpX}, ${jumpY})`);
+    }
+
+    // Mișcare sigură care evită blocarea în colțuri
+    function safeMouseMove(direction) {
+        const step = parseInt(document.getElementById("mouseStep").value) || 300;
+        let newX = estimatedMouseX;
+        let newY = estimatedMouseY;
+        
+        switch(direction) {
+            case 'up':
+                newY = Math.max(50, estimatedMouseY - step);
+                break;
+            case 'down':
+                newY = Math.min(screenHeight - 50, estimatedMouseY + step);
+                break;
+            case 'left':
+                newX = Math.max(50, estimatedMouseX - step);
+                break;
+            case 'right':
+                newX = Math.min(screenWidth - 50, estimatedMouseX + step);
+                break;
+        }
+        
+        // Verifică dacă ne apropiem prea mult de margini
+        const edgeThreshold = 30;
+        if (newX < edgeThreshold) newX = edgeThreshold;
+        if (newX > screenWidth - edgeThreshold) newX = screenWidth - edgeThreshold;
+        if (newY < edgeThreshold) newY = edgeThreshold;
+        if (newY > screenHeight - edgeThreshold) newY = screenHeight - edgeThreshold;
+        
+        // Calculează mișcarea relativă
+        const deltaX = newX - estimatedMouseX;
+        const deltaY = newY - estimatedMouseY;
+        
+        // Trimite comanda de mișcare relativă
+        if (deltaX !== 0 || deltaY !== 0) {
+            const params = `dx=${deltaX}&dy=${deltaY}`;
+            sendCommand('mouse_relative', params);
+            
+            // Actualizează poziția estimată
+            estimatedMouseX = newX;
+            estimatedMouseY = newY;
+            
+            showFeedback(`🖱️ ${direction.toUpperCase()} ${step}px (Safe)`);
+            
+            // Verifică dacă suntem aproape de margine și avertizează
+            if (newX <= edgeThreshold || newX >= screenWidth - edgeThreshold ||
+                newY <= edgeThreshold || newY >= screenHeight - edgeThreshold) {
+                setTimeout(() => {
+                    showFeedback("⚠️ Aproape de margine! Folosește 'Centrează Mouse' dacă se blochează", true);
+                }, 500);
+            }
+        }
+    }
+
+    // Mesaje amuzante (aleatorii) înainte de System Control — apoi rulează comanda
+    const FUNNY_SYSTEM_MESSAGES = {
+        sleep: [
+            "Windows își trage pijamaua de 0 și 1… noapte bună!",
+            "PC-ul cască. Nu-l deranja, visează la drivere noi.",
+            "Economisim curent ca să nu plângem la factură — Sleep incoming.",
+            "Închid ochii… dacă se trezește cu update, nu eu sunt de vină.",
+            "Mod melc: totul încet, dar elegant. 😴",
+            "Spoiler: mâine tot o să întrebi „de ce nu s-a oprit?”"
+        ],
+        hibernate: [
+            "Urșii digitali intră în peșteră. Ne vedem după thaw. 🐻",
+            "Salvez totul pe disc și fac pe mortul. Revin când mă trezești.",
+            "Deep freeze emoțional pentru procesor — hibernare!",
+            "RAM-ul respiră ușurat: „în sfârșit, pauză.”",
+            "Ca o pizza la congelator: aceeași, dar rece și salvată.",
+            "Hibernate: Windows își scrie jurnalul înainte de somn adânc."
+        ],
+        screenshot: [
+            "Zâmbește! …sau nu; oricum te prind în pixeli. 📸",
+            "Paparazzi virtual: 3, 2, 1… CHEESE (sau CTRL+alt+panic).",
+            "Capturez ecranul ca dovadă că mergea înainte să strici ceva.",
+            "Screenshot: singura dovadă că nu ai închis tab-ul de YouTube.",
+            "Freeze frame! Nici măcar actorii nu clipesc acum.",
+            "Pixelii se aliniază pentru posteritate. Say cheese!"
+        ],
+        alt_tab: [
+            "Deschid roata… pardon, doar Alt+Tab. Câte ferestre ai uitat deschise?",
+            "Căutătorul de ferestre pierdute pornește motoarele.",
+            "Spoiler: nu e primul tab cu „doar 5 minute” de acum o oră.",
+            "Alt+Tab: tur de grajd digital — alege calul câștigător.",
+            "Fereastra potrivită e mereu a doua în listă. Legea universului.",
+            "Comutator de realități — alege iluzia preferată."
+        ],
+        turn_off: [
+            "Butonul roșu din filme: îl apeși și… lights out! ⏻",
+            "PC-ul face stânga-mprejur spre lumea offline. Pa, pixeli!",
+            "Închid magazinul. Dacă n-ai salvat, acum e momentul să regreți artistic.",
+            "Shutdown: singura dată când Windows ascultă fără update forțat.",
+            "Spoiler: ventilatoarele plâng de fericire că se opresc.",
+            "Hiber… nu, asta e TURN OFF. Adio curent, a fost frumos!"
+        ]
+    };
+
+    const FUNNY_SYSTEM_COMMANDS = ['sleep', 'hibernate', 'screenshot', 'alt_tab', 'turn_off'];
+    const POWER_CANCEL_COMMANDS = ['sleep', 'hibernate', 'turn_off'];
+    const SHORT_FUNNY_DELAY_MS = 1700;
+    const POWER_CANCEL_SECONDS = 10;
+
+    let funnyPopupTimers = { timeout: null, interval: null };
+
+    function clearFunnyPopupTimers() {
+        if (funnyPopupTimers.timeout) {
+            clearTimeout(funnyPopupTimers.timeout);
+            funnyPopupTimers.timeout = null;
+        }
+        if (funnyPopupTimers.interval) {
+            clearInterval(funnyPopupTimers.interval);
+            funnyPopupTimers.interval = null;
+        }
+    }
+
+    function pickFunnyMessage(command) {
+        const list = FUNNY_SYSTEM_MESSAGES[command];
+        if (!list || !list.length) return "Surpriză!";
+        return list[Math.floor(Math.random() * list.length)];
+    }
+
+    function showFunnySystemPopup(command, onDone) {
+        const overlay = document.getElementById('funnyPopupOverlay');
+        const textEl = document.getElementById('funnyPopupText');
+        const emojiEl = document.getElementById('funnyPopupEmoji');
+        const hintEl = document.getElementById('funnyPopupHint');
+        const powerRow = document.getElementById('funnyPopupPowerRow');
+        const cdEl = document.getElementById('funnyPopupCountdown');
+        const cancelBtn = document.getElementById('funnyPopupCancelBtn');
+        const emojiByCmd = { sleep: '😴', hibernate: '🌙', screenshot: '📸', alt_tab: '🔄', turn_off: '⏻' };
+
+        emojiEl.textContent = emojiByCmd[command] || '✨';
+        textEl.textContent = pickFunnyMessage(command);
+        overlay.style.display = 'flex';
+        overlay.setAttribute('aria-hidden', 'false');
+
+        let done = false;
+        let onEsc = function () {};
+
+        const cleanup = () => {
+            clearFunnyPopupTimers();
+            overlay.onclick = null;
+            document.removeEventListener('keydown', onEsc);
+            if (cancelBtn) cancelBtn.onclick = null;
+            powerRow.style.display = 'none';
+        };
+
+        const finish = (executeCommand) => {
+            if (done) return;
+            done = true;
+            cleanup();
+            overlay.style.display = 'none';
+            overlay.setAttribute('aria-hidden', 'true');
+            if (executeCommand) onDone();
+        };
+
+        const isPower = POWER_CANCEL_COMMANDS.indexOf(command) !== -1;
+
+        if (isPower) {
+            hintEl.textContent = `Ai ${POWER_CANCEL_SECONDS} secunde să anulezi (buton, Esc sau click pe fundal). La 0 se trimite comanda.`;
+            powerRow.style.display = 'flex';
+            let remaining = POWER_CANCEL_SECONDS;
+            cdEl.textContent = String(remaining);
+
+            const cancelAction = () => {
+                if (done) return;
+                finish(false);
+                showFeedback('Anulat — comanda nu a fost trimisă.', false);
+            };
+
+            funnyPopupTimers.interval = setInterval(() => {
+                remaining -= 1;
+                cdEl.textContent = String(Math.max(0, remaining));
+                if (remaining <= 0) {
+                    finish(true);
+                }
+            }, 1000);
+
+            cancelBtn.onclick = (e) => {
+                e.preventDefault();
+                cancelAction();
+            };
+
+            onEsc = (e) => {
+                if (e.key === 'Escape') cancelAction();
+            };
+            document.addEventListener('keydown', onEsc);
+
+            overlay.onclick = () => cancelAction();
+        } else {
+            hintEl.textContent = 'Apasă pe fundal, Esc sau așteaptă ~1,7s — apoi se trimite comanda.';
+            powerRow.style.display = 'none';
+
+            onEsc = (e) => {
+                if (e.key === 'Escape') finish(true);
+            };
+            document.addEventListener('keydown', onEsc);
+
+            funnyPopupTimers.timeout = setTimeout(() => finish(true), SHORT_FUNNY_DELAY_MS);
+            overlay.onclick = () => finish(true);
+        }
+    }
+
+    // ⚡ FUNCȚIA PENTRU FEEDBACK VIZUAL ȘI TRIMITEREA COMENZII
+    function executeSendFeedback(command, button) {
+        console.log('Command:', command);
+
+        if (button) {
+            button.classList.add('pulse');
+            setTimeout(() => button.classList.remove('pulse'), 1000);
+        }
+
+        showFeedback(`📤 Trimit: ${command}`);
+        sendCommand(command);
+    }
+
+    function sendFeedback(command, button) {
+        if (FUNNY_SYSTEM_COMMANDS.indexOf(command) !== -1) {
+            showFunnySystemPopup(command, () => executeSendFeedback(command, button));
+            return;
+        }
+        executeSendFeedback(command, button);
+    }
+
+    // ⚡ AFIȘEAZĂ FEEDBACK-UL ÎN INTERFAȚĂ
+    function showFeedback(message, isError = false) {
+        const feedback = document.getElementById('feedback');
+        feedback.style.opacity = '1';
+        feedback.textContent = message;
+        feedback.style.background = isError ? 
+            "rgba(255, 0, 0, 0.2)" : "rgba(0, 255, 0, 0.2)";
+        feedback.style.color = isError ? '#ff4444' : '#00ff00';
+        feedback.style.borderColor = isError ? '#ff4444' : '#00ff00';
+        setTimeout(() => feedback.style.opacity = '0', 3000);
+    }
+
+    // SETEAZĂ STEP-UL PENTRU MOUSE
+    function setMouseStep(value) {
+        document.getElementById("mouseStep").value = value;
+        showFeedback(`🎯 Mouse step setat la ${value}px`);
+    }
+
+    // Funcții pentru butoanele cu toggle (mute, fullscreen, play/pause)
+    function toggleMute() {
+        muted = !muted;
+        const emoji = document.getElementById("emojiMute");
+        const text = document.getElementById("textMute");
+        const btn = document.getElementById("btnMute");
+        
+        if (muted) {
+            emoji.textContent = "🔇";
+            text.textContent = "UNMUTE";
+            btn.className = "btn state-mute";
+        } else {
+            emoji.textContent = "🔊";
+            text.textContent = "MUTE";
+            btn.className = "btn state-unmute";
+        }
+        sendFeedback("mute", btn);
+    }
+
+    function toggleFullscreen() {
+        // Metoda fiabila pentru video: dublu-click in centru.
+        const btn = document.getElementById("btnFullscreen");
+        sendFeedback("fullscreen_video", btn);
+    }
+
+    function togglePlayPause() {
+        playing = !playing;
+        const emoji = document.getElementById("emojiPP");
+        const text = document.getElementById("textPP");
+        const btn = document.getElementById("btnPlayPause");
+        
+        if (playing) {
+            emoji.textContent = "⏸️";
+            text.textContent = "PAUSE";
+            btn.className = "btn state-pause";
+        } else {
+            emoji.textContent = "▶️";
+            text.textContent = "PLAY";
+            btn.className = "btn state-play";
+        }
+        sendFeedback("play_pause", btn);
+    }
+
+    // Detectarea tastelor pentru control rapid
+    document.addEventListener('keydown', function(e) {
+        // Doar dacă nu suntem într-un câmp de input
+        if (e.target.tagName !== 'INPUT') {
+            switch(e.key) {
+                case ' ':
+                    e.preventDefault();
+                    togglePlayPause();
+                    break;
+                case 'm':
+                case 'M':
+                    toggleMute();
+                    break;
+                case 'f':
+                case 'F':
+                    toggleFullscreen();
+                    break;
+                case 'c':
+                case 'C':
+                    centerMouse();
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    if (e.ctrlKey) {
+                        sendCommand('volume_up');
+                        showFeedback("Volume UP");
+                    } else {
+                        sendCommand('arrow_up');
+                        showFeedback("Arrow UP");
+                    }
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    if (e.ctrlKey) {
+                        sendCommand('volume_down');
+                        showFeedback("Volume DOWN");
+                    } else {
+                        sendCommand('arrow_down');
+                        showFeedback("Arrow DOWN");
+                    }
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    sendCommand('arrow_left');
+                    showFeedback("Arrow LEFT");
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    sendCommand('arrow_right');
+                    showFeedback("Arrow RIGHT");
+                    break;
+                case 'w':
+                case 'W':
+                    safeMouseMove('up');
+                    break;
+                case 's': 
+                case 'S':
+                    safeMouseMove('down');
+                    break;
+                case 'a':
+                case 'A':
+                    safeMouseMove('left');
+                    break;
+                case 'd':
+                case 'D':
+                    safeMouseMove('right');
+                    break;
+                case 'Enter':
+                    if (e.target.tagName !== 'INPUT') {
+                        e.preventDefault();
+                        sendCommand('enter');
+                        showFeedback("Enter");
+                    }
+                    break;
+                case 'Escape':
+                    e.preventDefault();
+                    sendCommand('escape');
+                    showFeedback("Escape");
+                    break;
+            }
+        }
+    });
+
+    // La încărcarea paginii, centrează mouse-ul pentru a evita probleme
+    window.addEventListener('load', function() {
+        console.log("🎮 ESP32 Control - Fixed Version Loaded!");
+        console.log("📍 Apasă 'C' pentru a centra mouse-ul oricând");
+        console.log("🚨 Folosește butoanele de urgență dacă mouse-ul se blochează în colț");
+        
+        // Afișează un mesaj de bun venit
+        showFeedback("✅ Sistem încărcat! Apasă 'C' pentru a centra mouse-ul");
+    });
+</script>
+
+<!-- TRACKPAD: mișcare relativă a mouse-ului prin atingere -->
+<script>
+(function () {
+  var pad = document.getElementById("touchpad");
+  if (!pad) return;
+
+  var sensInput = document.getElementById("padSensitivity");
+  var sensVal = document.getElementById("padSensVal");
+  var sensitivity = sensInput ? parseFloat(sensInput.value) : 2.5;
+
+  if (sensInput) {
+    sensInput.addEventListener("input", function () {
+      sensitivity = parseFloat(sensInput.value) || 2.5;
+      if (sensVal) sensVal.textContent = sensitivity + "x";
+    });
+  }
+
+  var label = document.getElementById("touchpadLabel");
+  var defaultLabelHTML = label ? label.innerHTML : "";
+
+  var lastX = 0, lastY = 0;
+  var accDX = 0, accDY = 0;
+  var moved = false;
+  var tracking = false;
+  var startTime = 0;
+  var maxTouches = 0;
+  var sendTimer = null;
+
+  // Scroll cu 2 degete
+  var scrollAcc = 0;
+  var scrollTimer = null;
+  function flushScroll() {
+    var d = Math.round(scrollAcc);
+    scrollAcc -= d;
+    if (d !== 0) sendCommand("mouse_wheel", "delta=" + d);
+    scrollTimer = null;
+  }
+  function scheduleScroll() {
+    if (scrollTimer === null) scrollTimer = setTimeout(flushScroll, 40);
+  }
+
+  // --- selecție prin "ține apăsat" (drag) ---
+  var HOLD_MS = 350;          // cât ții apăsat ca să intri în mod selecție
+  var MOVE_TOLERANCE = 8;     // px mișcare permisă fără a anula long-press
+  var dragging = false;       // butonul stâng este ținut apăsat pe PC
+  var holdTimer = null;
+  var startScreenX = 0, startScreenY = 0;
+
+  // Trimite comenzile de drag STRICT în ordine (down -> move -> up),
+  // așteptând fiecare răspuns înainte de următoarea comandă.
+  var dragChain = Promise.resolve();
+  function sendOrdered(cmd, params) {
+    var url = "http://" + serverIP + ":" + serverPort + "/?c=" + cmd + (params ? "&" + params : "");
+    dragChain = dragChain.then(function () {
+      return fetch(url, { cache: "no-store", mode: "cors" }).catch(function () {});
+    });
+    return dragChain;
+  }
+
+  function setSelectMode(on) {
+    if (!pad) return;
+    if (on) {
+      pad.style.background = "rgba(0,255,128,0.18)";
+      pad.style.borderColor = "#00ff88";
+      if (label) label.innerHTML = "🟢 SELECTEZ — mișcă degetul<br>ridică degetul = gata";
+    } else {
+      pad.style.background = "rgba(68,255,255,0.07)";
+      pad.style.borderColor = "var(--base-cyan)";
+      if (label) label.innerHTML = defaultLabelHTML;
+    }
+  }
+
+  function startDrag() {
+    if (dragging) return;
+    dragging = true;
+    sendOrdered("mouse_down");
+    setSelectMode(true);
+    if (navigator.vibrate) { try { navigator.vibrate(30); } catch (e) {} }
+    if (typeof showFeedback === "function") showFeedback("🟢 Mod selecție pornit");
+  }
+
+  function endDrag() {
+    if (!dragging) return;
+    dragging = false;
+    // Trimite orice mișcare rămasă, apoi eliberează butonul — în ordine.
+    flush();
+    sendOrdered("mouse_up");
+    setSelectMode(false);
+    if (typeof showFeedback === "function") showFeedback("✅ Selecție terminată");
+  }
+
+  function clearHoldTimer() {
+    if (holdTimer !== null) { clearTimeout(holdTimer); holdTimer = null; }
+  }
+
+  function flush() {
+    var dx = Math.round(accDX), dy = Math.round(accDY);
+    accDX -= dx; accDY -= dy;
+    if (dx !== 0 || dy !== 0) {
+      if (dragging) {
+        // În mod selecție: păstrăm ordinea strictă față de down/up.
+        sendOrdered("mouse_relative", "dx=" + dx + "&dy=" + dy);
+      } else {
+        sendCommand("mouse_relative", "dx=" + dx + "&dy=" + dy);
+      }
+    }
+    sendTimer = null;
+  }
+
+  function scheduleSend() {
+    if (sendTimer === null) {
+      sendTimer = setTimeout(flush, 30);
+    }
+  }
+
+  pad.addEventListener("touchstart", function (e) {
+    e.preventDefault();
+    tracking = true;
+    moved = false;
+    startTime = Date.now();
+    maxTouches = e.touches.length;
+    lastX = e.touches[0].clientX;
+    lastY = e.touches[0].clientY;
+    startScreenX = lastX;
+    startScreenY = lastY;
+    // Cu un singur deget: dacă ții apăsat, intri în mod selecție (drag)
+    clearHoldTimer();
+    if (e.touches.length === 1) {
+      holdTimer = setTimeout(function () {
+        holdTimer = null;
+        // Pornim selecția dacă degetul e încă pe pad. Micile tremurături
+        // (sub MOVE_TOLERANCE) NU anulează long-press-ul.
+        if (tracking) startDrag();
+      }, HOLD_MS);
+    }
+  }, { passive: false });
+
+  pad.addEventListener("touchmove", function (e) {
+    e.preventDefault();
+    if (!tracking) return;
+    if (e.touches.length > maxTouches) maxTouches = e.touches.length;
+
+    // 2 degete = scroll pagini (nu mișcă cursorul, nu selectează)
+    if (e.touches.length >= 2) {
+      clearHoldTimer();
+      var ty = e.touches[0].clientY;
+      var sdy = ty - lastY;
+      lastY = ty;
+      lastX = e.touches[0].clientX;
+      moved = true;
+      // deget în jos => scroll în jos (rotiță negativă)
+      scrollAcc += -sdy * 8;
+      scheduleScroll();
+      return;
+    }
+
+    var t = e.touches[0];
+    // Anulează long-press doar dacă degetul s-a mișcat semnificativ înainte de a intra în selecție
+    if (holdTimer !== null) {
+      var totDx = Math.abs(t.clientX - startScreenX);
+      var totDy = Math.abs(t.clientY - startScreenY);
+      if (totDx > MOVE_TOLERANCE || totDy > MOVE_TOLERANCE) {
+        clearHoldTimer();
+      }
+    }
+    var dx = (t.clientX - lastX) * sensitivity;
+    var dy = (t.clientY - lastY) * sensitivity;
+    lastX = t.clientX;
+    lastY = t.clientY;
+    if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+      moved = true;
+      accDX += dx;
+      accDY += dy;
+      scheduleSend();
+    }
+  }, { passive: false });
+
+  pad.addEventListener("touchend", function (e) {
+    e.preventDefault();
+    tracking = false;
+    clearHoldTimer();
+    // Dacă eram în mod selecție, eliberăm butonul (gata selecția)
+    if (dragging) {
+      endDrag();
+      maxTouches = 0;
+      return;
+    }
+    // Atingere scurtă, fără mișcare = click
+    var quick = (Date.now() - startTime) < 250;
+    if (!moved && quick) {
+      if (maxTouches >= 2) {
+        sendCommand("right_click");
+        if (typeof showFeedback === "function") showFeedback("👉 Right click");
+      } else {
+        sendCommand("click");
+        if (typeof showFeedback === "function") showFeedback("👆 Click");
+      }
+    }
+    maxTouches = 0;
+  }, { passive: false });
+
+  pad.addEventListener("touchcancel", function () {
+    tracking = false;
+    clearHoldTimer();
+    if (dragging) endDrag();
+    maxTouches = 0;
+  }, { passive: false });
+
+  // Suport și pentru mouse pe desktop (drag pe pad)
+  var mouseDown = false;
+  var mouseHoldTimer = null;
+  var mStartX = 0, mStartY = 0;
+  pad.addEventListener("mousedown", function (e) {
+    mouseDown = true; moved = false; lastX = e.clientX; lastY = e.clientY;
+    mStartX = e.clientX; mStartY = e.clientY;
+    if (mouseHoldTimer !== null) clearTimeout(mouseHoldTimer);
+    mouseHoldTimer = setTimeout(function () {
+      mouseHoldTimer = null;
+      if (mouseDown) startDrag();
+    }, HOLD_MS);
+  });
+  window.addEventListener("mousemove", function (e) {
+    if (!mouseDown) return;
+    if (mouseHoldTimer !== null) {
+      if (Math.abs(e.clientX - mStartX) > MOVE_TOLERANCE ||
+          Math.abs(e.clientY - mStartY) > MOVE_TOLERANCE) {
+        clearTimeout(mouseHoldTimer); mouseHoldTimer = null;
+      }
+    }
+    var dx = (e.clientX - lastX) * sensitivity;
+    var dy = (e.clientY - lastY) * sensitivity;
+    lastX = e.clientX; lastY = e.clientY;
+    if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+      moved = true; accDX += dx; accDY += dy; scheduleSend();
+    }
+  });
+  window.addEventListener("mouseup", function () {
+    if (mouseHoldTimer !== null) { clearTimeout(mouseHoldTimer); mouseHoldTimer = null; }
+    if (dragging) { endDrag(); mouseDown = false; return; }
+    if (mouseDown && !moved) { sendCommand("click"); }
+    mouseDown = false;
+  });
+})();
+</script>
+
+</body>
+</html>
