@@ -109,7 +109,7 @@ HTTP_SERVER_TASK_NAME = None
 LAUNCHER_HTML_FILE = "Launcher_FIRE_AND_FORGET.html"
 
 # ✅ URL Quick App (GitHub Pages)
-QUICK_APP_URL = "https://metusalem696.github.io/quick-app-launcher/"
+QUICK_APP_URL = "https://METUSALEM969.github.io/quick-app-launcher/"
 
 # =====================================================================
 # LOGGING / UTILS

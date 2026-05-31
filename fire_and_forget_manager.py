@@ -70,7 +70,7 @@ if Path(sys.executable).name.lower() == "python.exe":
 else:
     _PROGRAM_EXE = sys.executable
 
-GITHUB_PAGES_URL = "https://metusalem696.github.io/quick-app-launcher/"
+GITHUB_PAGES_URL = "https://METUSALEM969.github.io/quick-app-launcher/"
 
 CONFIG = {
     'TASK_NAME': 'FIRE_AND_FORGET_AUTOSTART',

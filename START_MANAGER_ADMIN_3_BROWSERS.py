@@ -125,7 +125,7 @@ CONFIG = {
     'SERVER_PORT': 8899,
     'LOCALHOST_URL': 'http://localhost:8899/',
     'LOCAL_FILE_URL': _FINAL_HTML.as_uri(),
-    'GITHUB_PAGES_URL': 'https://metusalem696.github.io/quick-app-launcher/',
+    'GITHUB_PAGES_URL': 'https://METUSALEM969.github.io/quick-app-launcher/',
     'GITHUB_URL': _FINAL_HTML.as_uri(),
     'ENABLE_SOUND': True,
     'ENABLE_ANIMATIONS': True,

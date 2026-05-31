@@ -42,7 +42,7 @@ CONFIG = {
     "BROWSER_DELAY": 5,  # seconds to wait before opening browsers
     "LOCALHOST_URL": "http://localhost:8899/",
     "LOCAL_FILE_URL": _FILE_URI,
-    "GITHUB_PAGES_URL": "https://metusalem696.github.io/quick-app-launcher/",
+    "GITHUB_PAGES_URL": "https://METUSALEM969.github.io/quick-app-launcher/",
 }
 
 # ═════════════════════════════════════════════════════════════════════

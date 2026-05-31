@@ -41,7 +41,7 @@ start "" "http://localhost:8899/"
 timeout /t 1 /nobreak >nul
 start "" "file:///E:/script/Quick%%20App%%20Launcher/New%%20folder/Launcher_FINAL_WITH_SOUND.html"
 timeout /t 1 /nobreak >nul
-start "" "https://metusalem696.github.io/quick-app-launcher/"
+start "" "https://METUSALEM969.github.io/quick-app-launcher/"
 
 :: Success message
 echo.

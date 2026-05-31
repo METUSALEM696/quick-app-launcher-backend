@@ -258,7 +258,7 @@ CONFIG = {
     'WORKING_DIR': r'E:\script\...',
     'SERVER_PORT': 8899,
     'LOCALHOST_URL': 'http://localhost:8899/',
-    'GITHUB_URL': 'https://metusalem696.github.io/...',
+    'GITHUB_URL': 'https://METUSALEM969.github.io/...',
     'ENABLE_SOUND': True,        # Sound effects
     'ENABLE_ANIMATIONS': True,   # Animations
     'THEME': 'cyan',             # Color theme

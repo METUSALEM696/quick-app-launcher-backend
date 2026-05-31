@@ -1,12 +1,12 @@
 # Quick App Launcher — Backend
 
 Server Python pentru **ESP32 Pro Control** / Quick App Launcher.  
-Frontend (panou web): https://metusalem696.github.io/quick-app-launcher/
+Frontend (panou web): https://METUSALEM969.github.io/quick-app-launcher/
 
 ## Instalare rapidă
 
 ```powershell
-git clone https://github.com/METUSALEM696/quick-app-launcher-backend.git
+git clone https://github.com/METUSALEM969/quick-app-launcher-backend.git
 cd quick-app-launcher-backend
 pip install -r requirements.txt
 ```
@@ -28,7 +28,7 @@ Serverul ascultă pe **portul 8899**:
 ## Utilizare remote (telefon → PC)
 
 1. Pornește serverul pe PC (`server_fire_and_forget.py`).
-2. Deschide pe telefon: https://metusalem696.github.io/quick-app-launcher/
+2. Deschide pe telefon: https://METUSALEM969.github.io/quick-app-launcher/
 3. În setările paginii, pune **IP-ul PC-ului** (ex. `192.168.1.10`) și portul **8899**.
 4. Telefonul și PC-ul trebuie pe **aceeași rețea Wi‑Fi**.
 5. Permite portul **8899** în **Firewall Windows** (regulă inbound TCP).
@@ -55,4 +55,4 @@ Editează dicționarul `APPS` din `server_fire_and_forget.py` cu căile tale (VS
 
 ## Repo frontend
 
-https://github.com/METUSALEM696/quick-app-launcher
+https://github.com/METUSALEM969/quick-app-launcher
