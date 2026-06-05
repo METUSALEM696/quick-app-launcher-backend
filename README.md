@@ -6,8 +6,8 @@ Frontend (panou web): https://METUSALEM969.github.io/quick-app-launcher/
 ## Instalare rapidă
 
 ```powershell
-git clone https://github.com/METUSALEM969/quick-app-launcher-backend.git
-cd quick-app-launcher-backend
+git clone https://github.com/metusalem969-ro/esp32-pro-control-backend.git
+cd esp32-pro-control-backend
 pip install -r requirements.txt
 ```
 
